@@ -1,0 +1,49 @@
+import { Component } from '@angular/core';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-auth',
+  templateUrl: './auth.component.html'
+})
+export class AuthComponent {
+  public isRegister = false;
+  public model: any = {
+    name: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    age: 18,
+    proof: ''
+  };
+  public errorMessage = '';
+
+  constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
+
+  public toggleMode() {
+    this.isRegister = !this.isRegister;
+    this.errorMessage = '';
+  }
+
+  public submit() {
+    this.errorMessage = '';
+    if (this.isRegister) {
+      this.api.register(this.model).subscribe({
+        next: (result: any) => {
+          this.auth.setSession(result.token, { name: result.userName, roles: result.roles });
+          this.router.navigate(['/dashboard']);
+        },
+        error: err => this.errorMessage = err.error?.message || err.statusText
+      });
+    } else {
+      this.api.login(this.model).subscribe({
+        next: (result: any) => {
+          this.auth.setSession(result.token, { name: result.userName, roles: result.roles });
+          this.router.navigate(['/dashboard']);
+        },
+        error: err => this.errorMessage = err.error?.message || err.statusText
+      });
+    }
+  }
+}

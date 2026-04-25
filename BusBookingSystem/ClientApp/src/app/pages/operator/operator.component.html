@@ -1,0 +1,53 @@
+<div class="card">
+  <h2>Operator Panel</h2>
+  <div *ngIf="profile">
+    <p><strong>Name:</strong> {{ profile.name }}</p>
+    <p><strong>Route:</strong> {{ profile.assignedRoute?.source }} → {{ profile.assignedRoute?.destination }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Add new bus</h3>
+    <label>Registration number</label>
+    <input [(ngModel)]="newBus.registrationNumber" name="registrationNumber" />
+    <label>Timing</label>
+    <input type="time" [(ngModel)]="newBus.timing" name="timing" />
+    <label>Travel date</label>
+    <input type="date" [(ngModel)]="newBus.travelDate" name="travelDate" />
+    <label>Seat layout (comma separated)</label>
+    <textarea [(ngModel)]="newBus.seatLayout" name="seatLayout"></textarea>
+    <label>Price</label>
+    <input type="number" [(ngModel)]="newBus.price" name="price" />
+    <button (click)="createBus()">Create Bus</button>
+  </div>
+
+  <div class="card">
+    <h3>My Buses</h3>
+    <div *ngIf="buses.length === 0">No buses yet.</div>
+    <div *ngFor="let bus of buses" class="card">
+      <p><strong>{{ bus.registrationNumber }}</strong></p>
+      <p>{{ bus.route.source }} → {{ bus.route.destination }}</p>
+      <p>{{ bus.travelDate | date }} {{ bus.timing }}</p>
+      <p><strong>Price:</strong> {{ bus.price | currency }}</p>
+      <p><strong>Status:</strong> {{ bus.isActive ? 'Active' : 'Disabled' }}</p>
+      <button *ngIf="bus.isActive" (click)="disableBus(bus)">Disable</button>
+      <button *ngIf="!bus.isActive" (click)="enableBus(bus)">Enable</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Bookings</h3>
+    <div *ngIf="bookings.length === 0">No bookings yet.</div>
+    <div *ngFor="let booking of bookings" class="card">
+      <p><strong>Booking:</strong> {{ booking.id }}</p>
+      <p><strong>Status:</strong> {{ booking.status }}</p>
+      <p><strong>Amount:</strong> {{ booking.payment?.amount | currency }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Revenue</h3>
+    <p><strong>Total:</strong> {{ revenue | currency }}</p>
+  </div>
+
+  <p *ngIf="error" style="color:red">{{ error }}</p>
+</div>

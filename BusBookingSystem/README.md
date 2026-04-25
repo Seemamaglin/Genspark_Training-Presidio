@@ -47,6 +47,17 @@ A comprehensive bus booking web application built with ASP.NET Core backend and 
    }
    ```
 
+3. Update SMTP settings in `appsettings.json` if you want real email notifications:
+   ```
+   "Smtp": {
+     "Host": "smtp.example.com",
+     "Port": "587",
+     "Username": "smtp-user",
+     "Password": "smtp-password",
+     "From": "no-reply@busbooking.com"
+   }
+   ```
+
 ### Running the Application
 
 1. Restore packages:
@@ -71,6 +82,18 @@ A comprehensive bus booking web application built with ASP.NET Core backend and 
    ```
 
 The API will be available at `https://localhost:5001` with Swagger UI.
+
+## Frontend
+
+A lightweight Angular client is available in `ClientApp/`.
+
+To run the frontend after installing Node.js and npm:
+
+1. Change directory to `ClientApp`.
+2. Run `npm install`.
+3. Run `npm start`.
+
+The frontend is configured to use `https://localhost:5001/api` for backend API calls.
 
 ## API Endpoints
 

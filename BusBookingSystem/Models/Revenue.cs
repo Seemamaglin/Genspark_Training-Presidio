@@ -4,12 +4,25 @@ namespace BusBookingSystem.Models;
 
 public class Revenue
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
+
     [Required]
-    public int BusId { get; set; }
-    public Bus Bus { get; set; }
+    public string OperatorId { get; set; } = null!;
+    public ApplicationUser? Operator { get; set; }
+
     [Required]
-    public decimal TotalRevenue { get; set; }
+    public Guid BusId { get; set; }
+    public Bus Bus { get; set; } = null!;
+
     [Required]
-    public DateTime Date { get; set; }
+    public Guid ScheduleId { get; set; }
+    public BusSchedule Schedule { get; set; } = null!;
+
+    [Required]
+    public Guid BookingId { get; set; }
+    public Booking Booking { get; set; } = null!;
+
+    [Required]
+    public decimal Amount { get; set; }
+    public DateTime RecordedAt { get; set; } = DateTime.UtcNow;
 }

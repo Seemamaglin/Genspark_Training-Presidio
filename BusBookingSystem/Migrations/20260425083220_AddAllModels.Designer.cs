@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BusBookingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260422102814_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260425083220_AddAllModels")]
+    partial class AddAllModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,11 +40,24 @@ namespace BusBookingSystem.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IdProof")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsApprovedBusOperator")
@@ -59,10 +72,6 @@ namespace BusBookingSystem.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -75,14 +84,10 @@ namespace BusBookingSystem.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("Proof")
-                        .HasColumnType("text");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -108,21 +113,34 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Booking", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("BusId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
+                    b.Property<string>("BookingReference")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -132,6 +150,8 @@ namespace BusBookingSystem.Migrations
 
                     b.HasIndex("BusId");
 
+                    b.HasIndex("ScheduleId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
@@ -139,17 +159,40 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Bus", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<TimeSpan>("ArrivalTime")
+                        .HasColumnType("interval");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("BusName")
+                        .HasColumnType("text");
 
                     b.Property<int>("BusOperatorId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("BusType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("DepartureTime")
+                        .HasColumnType("interval");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("OperatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
@@ -158,19 +201,30 @@ namespace BusBookingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("RouteId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("RouteId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SeatLayout")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<TimeSpan>("Timing")
                         .HasColumnType("interval");
+
+                    b.Property<int>("TotalSeats")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("TravelDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BusOperatorId");
+
+                    b.HasIndex("OperatorId");
 
                     b.HasIndex("RouteId");
 
@@ -185,9 +239,15 @@ namespace BusBookingSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid?>("AssignedRouteId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -199,9 +259,61 @@ namespace BusBookingSystem.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedRouteId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("BusOperators");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.BusSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly>("TravelDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusId");
+
+                    b.ToTable("BusSchedule");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.OperatorRoute", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OperatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("RouteId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("RouteId");
+
+                    b.ToTable("OperatorRoute");
                 });
 
             modelBuilder.Entity("BusBookingSystem.Models.PassengerDetail", b =>
@@ -215,8 +327,8 @@ namespace BusBookingSystem.Migrations
                     b.Property<int>("Age")
                         .HasColumnType("integer");
 
-                    b.Property<int>("BookingId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Destination")
                         .IsRequired()
@@ -235,7 +347,6 @@ namespace BusBookingSystem.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Proof")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SeatNumber")
@@ -255,23 +366,42 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Payment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("BookingId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("InitiatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("PaymentMethod")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("RefundAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("RefundReason")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SimulatedOutcome")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TransactionId")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -284,39 +414,57 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Revenue", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("BusId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OperatorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RecordedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<decimal>("TotalRevenue")
-                        .HasColumnType("numeric");
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BookingId");
+
                     b.HasIndex("BusId");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("ScheduleId");
 
                     b.ToTable("Revenues");
                 });
 
             modelBuilder.Entity("BusBookingSystem.Models.Route", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Destination")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<double>("DistanceKm")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Source")
                         .IsRequired()
@@ -329,17 +477,21 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Seat", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<string>("BookedByUserId")
+                        .HasColumnType("text");
 
-                    b.Property<int>("BusId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LockedBySessionId")
+                        .HasColumnType("text");
 
                     b.Property<string>("LockedByUserId")
                         .HasColumnType("text");
@@ -347,15 +499,55 @@ namespace BusBookingSystem.Migrations
                     b.Property<DateTime?>("LockedUntil")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("ScheduleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("SeatCode")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("Seats");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.SeatLayout", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BusId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Deck")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SeatCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SeatColumn")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SeatRow")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SeatType")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BusId");
 
-                    b.ToTable("Seats");
+                    b.ToTable("SeatLayout");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -498,6 +690,12 @@ namespace BusBookingSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BusBookingSystem.Models.BusSchedule", "Schedule")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusBookingSystem.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -505,6 +703,8 @@ namespace BusBookingSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Bus");
+
+                    b.Navigation("Schedule");
 
                     b.Navigation("User");
                 });
@@ -517,6 +717,12 @@ namespace BusBookingSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BusBookingSystem.Models.ApplicationUser", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusBookingSystem.Models.Route", "Route")
                         .WithMany("Buses")
                         .HasForeignKey("RouteId")
@@ -525,18 +731,56 @@ namespace BusBookingSystem.Migrations
 
                     b.Navigation("BusOperator");
 
+                    b.Navigation("Operator");
+
                     b.Navigation("Route");
                 });
 
             modelBuilder.Entity("BusBookingSystem.Models.BusOperator", b =>
                 {
+                    b.HasOne("BusBookingSystem.Models.Route", "AssignedRoute")
+                        .WithMany()
+                        .HasForeignKey("AssignedRouteId");
+
                     b.HasOne("BusBookingSystem.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AssignedRoute");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.BusSchedule", b =>
+                {
+                    b.HasOne("BusBookingSystem.Models.Bus", "Bus")
+                        .WithMany("BusSchedules")
+                        .HasForeignKey("BusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bus");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.OperatorRoute", b =>
+                {
+                    b.HasOne("BusBookingSystem.Models.ApplicationUser", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusBookingSystem.Models.Route", "Route")
+                        .WithMany("OperatorRoutes")
+                        .HasForeignKey("RouteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("Route");
                 });
 
             modelBuilder.Entity("BusBookingSystem.Models.PassengerDetail", b =>
@@ -563,19 +807,62 @@ namespace BusBookingSystem.Migrations
 
             modelBuilder.Entity("BusBookingSystem.Models.Revenue", b =>
                 {
+                    b.HasOne("BusBookingSystem.Models.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusBookingSystem.Models.Bus", "Bus")
                         .WithMany()
                         .HasForeignKey("BusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BusBookingSystem.Models.ApplicationUser", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusBookingSystem.Models.BusSchedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
                     b.Navigation("Bus");
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("BusBookingSystem.Models.Seat", b =>
                 {
                     b.HasOne("BusBookingSystem.Models.Bus", "Bus")
                         .WithMany("Seats")
+                        .HasForeignKey("BusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusBookingSystem.Models.BusSchedule", "Schedule")
+                        .WithMany("Seats")
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bus");
+
+                    b.Navigation("Schedule");
+                });
+
+            modelBuilder.Entity("BusBookingSystem.Models.SeatLayout", b =>
+                {
+                    b.HasOne("BusBookingSystem.Models.Bus", "Bus")
+                        .WithMany("SeatLayouts")
                         .HasForeignKey("BusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -645,6 +932,10 @@ namespace BusBookingSystem.Migrations
                 {
                     b.Navigation("Bookings");
 
+                    b.Navigation("BusSchedules");
+
+                    b.Navigation("SeatLayouts");
+
                     b.Navigation("Seats");
                 });
 
@@ -653,9 +944,18 @@ namespace BusBookingSystem.Migrations
                     b.Navigation("Buses");
                 });
 
+            modelBuilder.Entity("BusBookingSystem.Models.BusSchedule", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Seats");
+                });
+
             modelBuilder.Entity("BusBookingSystem.Models.Route", b =>
                 {
                     b.Navigation("Buses");
+
+                    b.Navigation("OperatorRoutes");
                 });
 #pragma warning restore 612, 618
         }

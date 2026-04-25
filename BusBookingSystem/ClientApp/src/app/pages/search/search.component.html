@@ -1,0 +1,24 @@
+<div class="card">
+  <h2>Search buses</h2>
+  <form (ngSubmit)="search()">
+    <label>Source</label>
+    <input [(ngModel)]="source" name="source" required />
+    <label>Destination</label>
+    <input [(ngModel)]="destination" name="destination" required />
+    <label>Travel Date</label>
+    <input type="date" [(ngModel)]="date" name="date" required />
+    <button type="submit">Search</button>
+  </form>
+  <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
+</div>
+<div *ngIf="buses.length > 0">
+  <div *ngFor="let bus of buses" class="card">
+    <h3>{{ bus.registrationNumber }}</h3>
+    <p><strong>Route:</strong> {{ bus.route.source }} → {{ bus.route.destination }}</p>
+    <p><strong>Date:</strong> {{ bus.travelDate | date }}</p>
+    <p><strong>Time:</strong> {{ bus.timing }}</p>
+    <p><strong>Price:</strong> {{ bus.price | currency }}</p>
+    <p><strong>Available seats:</strong> {{ bus.availableSeats }} / {{ bus.totalSeats }}</p>
+    <button (click)="book(bus.id)">Select seats</button>
+  </div>
+</div>

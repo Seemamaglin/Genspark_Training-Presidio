@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Genspark_Training\\BusBookingSystem\\BusBookingSystem.csproj": {}
+    "/Users/seemamaglin/Documents/Genspark_Training-Presidio/BusBookingSystem/BusBookingSystem.csproj": {}
   },
   "projects": {
-    "E:\\Genspark_Training\\BusBookingSystem\\BusBookingSystem.csproj": {
+    "/Users/seemamaglin/Documents/Genspark_Training-Presidio/BusBookingSystem/BusBookingSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Genspark_Training\\BusBookingSystem\\BusBookingSystem.csproj",
+        "projectUniqueName": "/Users/seemamaglin/Documents/Genspark_Training-Presidio/BusBookingSystem/BusBookingSystem.csproj",
         "projectName": "BusBookingSystem",
-        "projectPath": "E:\\Genspark_Training\\BusBookingSystem\\BusBookingSystem.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "E:\\Genspark_Training\\BusBookingSystem\\obj\\",
+        "projectPath": "/Users/seemamaglin/Documents/Genspark_Training-Presidio/BusBookingSystem/BusBookingSystem.csproj",
+        "packagesPath": "/Users/seemamaglin/.nuget/packages/",
+        "outputPath": "/Users/seemamaglin/Documents/Genspark_Training-Presidio/BusBookingSystem/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/seemamaglin/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -46,7 +46,7 @@
           "dependencies": {
             "MailKit": {
               "target": "Package",
-              "version": "[4.0.0, )"
+              "version": "[4.0.1, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -96,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

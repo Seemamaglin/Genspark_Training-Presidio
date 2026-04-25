@@ -1,0 +1,14 @@
+<header>
+  <nav>
+    <a routerLink="/">Home</a>
+    <a routerLink="/search">Search</a>
+    <a routerLink="/dashboard">Dashboard</a>
+    <a *ngIf="auth.hasRole('BusOperator')" routerLink="/operator">Operator</a>
+    <a *ngIf="auth.hasRole('Admin')" routerLink="/admin">Admin</a>
+    <a routerLink="/auth">{{ auth.isAuthenticated() ? 'Profile' : 'Login / Signup' }}</a>
+    <button *ngIf="auth.isAuthenticated()" (click)="logout()" style="background:none; border:none; color:#fff; cursor:pointer;">Logout</button>
+  </nav>
+</header>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

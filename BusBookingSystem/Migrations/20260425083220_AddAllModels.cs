@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BusBookingSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddAllModels : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,10 +31,11 @@ namespace BusBookingSystem.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
                     Age = table.Column<int>(type: "integer", nullable: false),
-                    Proof = table.Column<string>(type: "text", nullable: true),
+                    IdProof = table.Column<string>(type: "text", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsBusOperatorRequest = table.Column<bool>(type: "boolean", nullable: false),
                     IsApprovedBusOperator = table.Column<bool>(type: "boolean", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -45,6 +46,7 @@ namespace BusBookingSystem.Migrations
                     PasswordHash = table.Column<string>(type: "text", nullable: true),
                     SecurityStamp = table.Column<string>(type: "text", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -60,10 +62,11 @@ namespace BusBookingSystem.Migrations
                 name: "Routes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Source = table.Column<string>(type: "text", nullable: false),
-                    Destination = table.Column<string>(type: "text", nullable: false)
+                    Destination = table.Column<string>(type: "text", nullable: false),
+                    DistanceKm = table.Column<double>(type: "double precision", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -184,7 +187,9 @@ namespace BusBookingSystem.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(type: "text", nullable: false),
                     Source = table.Column<string>(type: "text", nullable: false),
-                    Destination = table.Column<string>(type: "text", nullable: false)
+                    Destination = table.Column<string>(type: "text", nullable: false),
+                    AssignedRouteId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,25 +200,72 @@ namespace BusBookingSystem.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BusOperators_Routes_AssignedRouteId",
+                        column: x => x.AssignedRouteId,
+                        principalTable: "Routes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OperatorRoute",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OperatorId = table.Column<string>(type: "text", nullable: false),
+                    RouteId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OperatorRoute", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OperatorRoute_AspNetUsers_OperatorId",
+                        column: x => x.OperatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OperatorRoute_Routes_RouteId",
+                        column: x => x.RouteId,
+                        principalTable: "Routes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Buses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     RegistrationNumber = table.Column<string>(type: "text", nullable: false),
+                    BusName = table.Column<string>(type: "text", nullable: true),
+                    BusType = table.Column<string>(type: "text", nullable: true),
+                    TotalSeats = table.Column<int>(type: "integer", nullable: false),
+                    DepartureTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    ArrivalTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    BasePrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CancellationReason = table.Column<string>(type: "text", nullable: true),
+                    OperatorId = table.Column<string>(type: "text", nullable: false),
                     BusOperatorId = table.Column<int>(type: "integer", nullable: false),
-                    RouteId = table.Column<int>(type: "integer", nullable: false),
+                    RouteId = table.Column<Guid>(type: "uuid", nullable: false),
                     Timing = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    SeatLayout = table.Column<string>(type: "text", nullable: false),
+                    TravelDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    SeatLayout = table.Column<string>(type: "text", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Buses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Buses_AspNetUsers_OperatorId",
+                        column: x => x.OperatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Buses_BusOperators_BusOperatorId",
                         column: x => x.BusOperatorId,
@@ -229,15 +281,63 @@ namespace BusBookingSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BusSchedule",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TravelDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancellationReason = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BusSchedule", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BusSchedule_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SeatLayout",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SeatCode = table.Column<string>(type: "text", nullable: false),
+                    SeatRow = table.Column<int>(type: "integer", nullable: false),
+                    SeatColumn = table.Column<int>(type: "integer", nullable: false),
+                    Deck = table.Column<string>(type: "text", nullable: true),
+                    SeatType = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SeatLayout", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SeatLayout_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bookings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingReference = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    BusId = table.Column<int>(type: "integer", nullable: false),
-                    BookingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false)
+                    ScheduleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CancellationReason = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,28 +349,13 @@ namespace BusBookingSystem.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Bookings_Buses_BusId",
-                        column: x => x.BusId,
-                        principalTable: "Buses",
+                        name: "FK_Bookings_BusSchedule_ScheduleId",
+                        column: x => x.ScheduleId,
+                        principalTable: "BusSchedule",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Revenues",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BusId = table.Column<int>(type: "integer", nullable: false),
-                    TotalRevenue = table.Column<decimal>(type: "numeric", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Revenues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Revenues_Buses_BusId",
+                        name: "FK_Bookings_Buses_BusId",
                         column: x => x.BusId,
                         principalTable: "Buses",
                         principalColumn: "Id",
@@ -281,17 +366,26 @@ namespace BusBookingSystem.Migrations
                 name: "Seats",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BusId = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ScheduleId = table.Column<Guid>(type: "uuid", nullable: false),
                     SeatCode = table.Column<string>(type: "text", nullable: false),
-                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    LockedByUserId = table.Column<string>(type: "text", nullable: true),
                     LockedUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    LockedByUserId = table.Column<string>(type: "text", nullable: true)
+                    BookedByUserId = table.Column<string>(type: "text", nullable: true),
+                    BusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
+                    LockedBySessionId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Seats", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Seats_BusSchedule_ScheduleId",
+                        column: x => x.ScheduleId,
+                        principalTable: "BusSchedule",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Seats_Buses_BusId",
                         column: x => x.BusId,
@@ -306,7 +400,7 @@ namespace BusBookingSystem.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BookingId = table.Column<int>(type: "integer", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
@@ -314,7 +408,7 @@ namespace BusBookingSystem.Migrations
                     SeatNumber = table.Column<string>(type: "text", nullable: false),
                     Source = table.Column<string>(type: "text", nullable: false),
                     Destination = table.Column<string>(type: "text", nullable: false),
-                    Proof = table.Column<string>(type: "text", nullable: false)
+                    Proof = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -331,11 +425,17 @@ namespace BusBookingSystem.Migrations
                 name: "Payments",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    BookingId = table.Column<int>(type: "integer", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    TransactionId = table.Column<string>(type: "text", nullable: true),
+                    SimulatedOutcome = table.Column<string>(type: "text", nullable: true),
+                    InitiatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    RefundAmount = table.Column<decimal>(type: "numeric", nullable: true),
+                    RefundReason = table.Column<string>(type: "text", nullable: true),
+                    PaymentMethod = table.Column<string>(type: "text", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -345,6 +445,47 @@ namespace BusBookingSystem.Migrations
                         name: "FK_Payments_Bookings_BookingId",
                         column: x => x.BookingId,
                         principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Revenues",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OperatorId = table.Column<string>(type: "text", nullable: false),
+                    BusId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ScheduleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    RecordedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Revenues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Revenues_AspNetUsers_OperatorId",
+                        column: x => x.OperatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Revenues_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Revenues_BusSchedule_ScheduleId",
+                        column: x => x.ScheduleId,
+                        principalTable: "BusSchedule",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Revenues_Buses_BusId",
+                        column: x => x.BusId,
+                        principalTable: "Buses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -392,6 +533,11 @@ namespace BusBookingSystem.Migrations
                 column: "BusId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_ScheduleId",
+                table: "Bookings",
+                column: "ScheduleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserId",
                 table: "Bookings",
                 column: "UserId");
@@ -402,14 +548,39 @@ namespace BusBookingSystem.Migrations
                 column: "BusOperatorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Buses_OperatorId",
+                table: "Buses",
+                column: "OperatorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Buses_RouteId",
                 table: "Buses",
                 column: "RouteId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BusOperators_AssignedRouteId",
+                table: "BusOperators",
+                column: "AssignedRouteId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BusOperators_UserId",
                 table: "BusOperators",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BusSchedule_BusId",
+                table: "BusSchedule",
+                column: "BusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OperatorRoute_OperatorId",
+                table: "OperatorRoute",
+                column: "OperatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OperatorRoute_RouteId",
+                table: "OperatorRoute",
+                column: "RouteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PassengerDetails_BookingId",
@@ -423,14 +594,39 @@ namespace BusBookingSystem.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Revenues_BookingId",
+                table: "Revenues",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Revenues_BusId",
                 table: "Revenues",
+                column: "BusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Revenues_OperatorId",
+                table: "Revenues",
+                column: "OperatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Revenues_ScheduleId",
+                table: "Revenues",
+                column: "ScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SeatLayout_BusId",
+                table: "SeatLayout",
                 column: "BusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Seats_BusId",
                 table: "Seats",
                 column: "BusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seats_ScheduleId",
+                table: "Seats",
+                column: "ScheduleId");
         }
 
         /// <inheritdoc />
@@ -452,6 +648,9 @@ namespace BusBookingSystem.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "OperatorRoute");
+
+            migrationBuilder.DropTable(
                 name: "PassengerDetails");
 
             migrationBuilder.DropTable(
@@ -459,6 +658,9 @@ namespace BusBookingSystem.Migrations
 
             migrationBuilder.DropTable(
                 name: "Revenues");
+
+            migrationBuilder.DropTable(
+                name: "SeatLayout");
 
             migrationBuilder.DropTable(
                 name: "Seats");
@@ -470,16 +672,19 @@ namespace BusBookingSystem.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
+                name: "BusSchedule");
+
+            migrationBuilder.DropTable(
                 name: "Buses");
 
             migrationBuilder.DropTable(
                 name: "BusOperators");
 
             migrationBuilder.DropTable(
-                name: "Routes");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Routes");
         }
     }
 }

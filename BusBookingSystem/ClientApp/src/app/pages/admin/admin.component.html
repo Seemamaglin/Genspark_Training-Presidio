@@ -1,0 +1,38 @@
+<div class="card">
+  <h2>Admin Panel</h2>
+  <div class="card">
+    <h3>Create route</h3>
+    <label>Source</label>
+    <input [(ngModel)]="newRoute.source" name="source" />
+    <label>Destination</label>
+    <input [(ngModel)]="newRoute.destination" name="destination" />
+    <button (click)="createRoute()">Create Route</button>
+  </div>
+
+  <div class="card">
+    <h3>Routes</h3>
+    <div *ngIf="routes.length === 0">No routes yet.</div>
+    <div *ngFor="let route of routes" class="card">
+      <p><strong>{{ route.source }}</strong> → <strong>{{ route.destination }}</strong></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Operator requests</h3>
+    <div *ngIf="requests.length === 0">No pending operator requests.</div>
+    <div *ngFor="let request of requests" class="card">
+      <p><strong>{{ request.name }}</strong> ({{ request.email }})</p>
+      <label>Assign route</label>
+      <select [(ngModel)]="assignRoute[request.id]" name="assignRoute{{request.id}}">
+        <option [ngValue]="null">Select a route</option>
+        <option *ngFor="let route of routes" [ngValue]="route.id">{{ route.source }} → {{ route.destination }}</option>
+      </select>
+      <div style="margin-top: 0.5rem;">
+        <button (click)="approveRequest(request)">Approve</button>
+        <button (click)="rejectRequest(request)">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="error" style="color:red">{{ error }}</p>
+</div>

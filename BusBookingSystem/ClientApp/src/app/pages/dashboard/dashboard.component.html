@@ -1,0 +1,43 @@
+<div class="card">
+  <h2>My Dashboard</h2>
+  <div class="card">
+    <h3>Upcoming Journeys</h3>
+    <div *ngIf="upcoming.length === 0">No upcoming bookings.</div>
+    <div *ngFor="let booking of upcoming" class="card">
+      <p><strong>Reference:</strong> {{ booking.bookingReference }}</p>
+      <p><strong>Route:</strong> {{ booking.route?.source }} → {{ booking.route?.destination }}</p>
+      <p><strong>Date:</strong> {{ booking.travelDate | date }}</p>
+      <p><strong>Amount:</strong> {{ booking.totalAmount | currency }}</p>
+      <p><strong>Status:</strong> {{ booking.status }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Past Journeys</h3>
+    <div *ngIf="past.length === 0">No past journeys.</div>
+    <div *ngFor="let booking of past" class="card">
+      <p><strong>Reference:</strong> {{ booking.bookingReference }}</p>
+      <p><strong>Route:</strong> {{ booking.route?.source }} → {{ booking.route?.destination }}</p>
+      <p><strong>Date:</strong> {{ booking.travelDate | date }}</p>
+      <p><strong>Amount:</strong> {{ booking.totalAmount | currency }}</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Cancelled Journeys</h3>
+    <div *ngIf="cancelled.length === 0">No cancelled journeys.</div>
+    <div *ngFor="let booking of cancelled" class="card">
+      <p><strong>Reference:</strong> {{ booking.bookingReference }}</p>
+      <p><strong>Route:</strong> {{ booking.route?.source }} → {{ booking.route?.destination }}</p>
+      <p><strong>Date:</strong> {{ booking.travelDate | date }}</p>
+      <p><strong>Amount:</strong> {{ booking.totalAmount | currency }}</p>
+      <p><strong>Status:</strong> {{ booking.status }}</p>
+    </div>
+  </div>
+  <div class="card" *ngIf="!auth.hasRole('BusOperator') && !auth.hasRole('Admin')">
+    <h3>Operator upgrade</h3>
+    <p>Request bus operator access to manage buses and routes.</p>
+    <button (click)="requestOperatorUpgrade()">Request Bus Operator Upgrade</button>
+    <p *ngIf="message" style="margin-top:0.75rem; color: green">{{ message }}</p>
+  </div>
+</div>

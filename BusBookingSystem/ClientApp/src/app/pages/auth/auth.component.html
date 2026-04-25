@@ -1,0 +1,24 @@
+<div class="card">
+  <h2>{{ isRegister ? 'Register' : 'Login' }}</h2>
+  <form (ngSubmit)="submit()">
+    <div *ngIf="isRegister">
+      <label>Name</label>
+      <input [(ngModel)]="model.name" name="name" required />
+      <label>Phone Number</label>
+      <input [(ngModel)]="model.phoneNumber" name="phoneNumber" required />
+      <label>Age</label>
+      <input type="number" [(ngModel)]="model.age" name="age" required />
+      <label>Proof / ID Reference</label>
+      <input [(ngModel)]="model.proof" name="proof" />
+    </div>
+    <label>Email</label>
+    <input type="email" [(ngModel)]="model.email" name="email" required />
+    <label>Password</label>
+    <input type="password" [(ngModel)]="model.password" name="password" required />
+    <button type="submit">{{ isRegister ? 'Sign Up' : 'Log In' }}</button>
+  </form>
+  <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
+  <p>
+    <a (click)="toggleMode()" style="cursor: pointer; text-decoration: underline;">{{ isRegister ? 'Already have an account?' : 'Need an account?' }}</a>
+  </p>
+</div>
