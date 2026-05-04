@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Payment> Payments { get; set; } = null!;
     public DbSet<PassengerDetail> PassengerDetails { get; set; } = null!;
     public DbSet<Revenue> Revenues { get; set; } = null!;
+    public DbSet<OperatorStop> OperatorStops { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,12 +1,17 @@
 <header>
   <nav>
-    <a routerLink="/">Home</a>
-    <a routerLink="/search">Search</a>
-    <a routerLink="/dashboard">Dashboard</a>
-    <a *ngIf="auth.hasRole('BusOperator')" routerLink="/operator">Operator</a>
-    <a *ngIf="auth.hasRole('Admin')" routerLink="/admin">Admin</a>
-    <a routerLink="/auth">{{ auth.isAuthenticated() ? 'Profile' : 'Login / Signup' }}</a>
-    <button *ngIf="auth.isAuthenticated()" (click)="logout()" style="background:none; border:none; color:#fff; cursor:pointer;">Logout</button>
+    <a class="brand" routerLink="/">BusBook</a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+    <a routerLink="/search" routerLinkActive="active">Search Buses</a>
+    <a *ngIf="auth.isAuthenticated()" routerLink="/dashboard" routerLinkActive="active">My Trips</a>
+    <a *ngIf="auth.hasRole('BusOperator')" routerLink="/operator" routerLinkActive="active">Operator</a>
+    <a *ngIf="auth.hasRole('Admin')" routerLink="/admin" routerLinkActive="active">Admin</a>
+    <span style="flex:1"></span>
+    <a *ngIf="!auth.isAuthenticated()" routerLink="/auth" class="nav-auth-btn">Login / Sign Up</a>
+    <ng-container *ngIf="auth.isAuthenticated()">
+      <span class="nav-greeting">Hi, {{ auth.user?.name }}</span>
+      <button class="nav-logout-btn" (click)="logout()">Logout</button>
+    </ng-container>
   </nav>
 </header>
 <div class="container">

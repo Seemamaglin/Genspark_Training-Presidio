@@ -1,0 +1,25 @@
+
+> bus-booking-client@0.0.1 start
+> ng serve --open --port 4200
+
+
+Initial Chunk Files   | Names         |  Raw Size
+main.js               | main          |   2.77 MB |
+polyfills.js          | polyfills     | 263.63 kB |
+styles.css, styles.js | styles        | 166.31 kB |
+runtime.js            | runtime       |   6.51 kB |
+
+| Initial Total |   3.20 MB
+
+Build at: 2026-04-26T09:48:16.991Z - Hash: a67bb7cc7e6f65e6 - Time: 12511ms
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+√ Compiled successfully.
+
+4 unchanged chunks
+
+Build at: 2026-04-26T09:48:17.760Z - Hash: a67bb7cc7e6f65e6 - Time: 300ms
+
+√ Compiled successfully.

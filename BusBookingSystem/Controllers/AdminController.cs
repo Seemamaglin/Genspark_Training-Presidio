@@ -2,6 +2,7 @@
 using BusBookingSystem.DTOs.Requests;
 using BusBookingSystem.Models;
 using BusBookingSystem.Services;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +25,16 @@ public class AdminController : ControllerBase {
         if (await _context.Routes.AnyAsync(r => r.Source == route.Source && r.Destination == route.Destination)) return BadRequest("Route already exists");
         _context.Routes.Add(route); await _context.SaveChangesAsync(); return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
     }
-    [HttpGet("routes")] public async Task<ActionResult<IEnumerable<RouteModel>>> GetRoutes() => await _context.Routes.Include(r => r.Buses).ToListAsync();
+    [HttpGet("routes")]
+    public async Task<IActionResult> GetRoutes() =>
+        Ok(await _context.Routes.Select(r => new { r.Id, r.Source, r.Destination }).ToListAsync());
+
     [HttpGet("routes/{id}")]
-    public async Task<ActionResult<RouteModel>> GetRoute(Guid id)
+    public async Task<IActionResult> GetRoute(Guid id)
     {
-        var route = await _context.Routes.Include(r => r.Buses).FirstOrDefaultAsync(r => r.Id == id);
+        var route = await _context.Routes.FirstOrDefaultAsync(r => r.Id == id);
         if (route == null) return NotFound();
-        return route;
+        return Ok(new { route.Id, route.Source, route.Destination });
     }
     [HttpPut("routes/{id}")] public async Task<IActionResult> UpdateRoute(Guid id, RouteModel route) { if (id != route.Id) return BadRequest(); _context.Entry(route).State = EntityState.Modified; try { await _context.SaveChangesAsync(); } catch (DbUpdateConcurrencyException) { if (!_context.Routes.Any(r => r.Id == id)) return NotFound(); throw; } return NoContent(); }
     [HttpDelete("routes/{id}")] public async Task<IActionResult> DeleteRoute(Guid id) { var route = await _context.Routes.FindAsync(id); if (route == null) return NotFound(); _context.Routes.Remove(route); await _context.SaveChangesAsync(); return NoContent(); }
@@ -38,30 +42,55 @@ public class AdminController : ControllerBase {
     [HttpGet("operator-requests")]
     public async Task<ActionResult<IEnumerable<object>>> GetOperatorRequests()
     {
-        var requests = await _userManager.Users
+        var pendingUsers = await _userManager.Users
             .Where(u => u.IsBusOperatorRequest && !u.IsApprovedBusOperator)
-            .Select(u => new { u.Id, u.Name, u.Email, u.PhoneNumber, u.Age, u.Proof })
             .ToListAsync();
 
-        return Ok(requests);
+        var pendingOps = await _context.BusOperators
+            .Where(o => !o.IsEnabled && pendingUsers.Select(u => u.Id).Contains(o.UserId))
+            .ToListAsync();
+
+        var result = pendingUsers.Select(u => {
+            var op = pendingOps.FirstOrDefault(o => o.UserId == u.Id);
+            return new { u.Id, u.Name, u.Email, u.PhoneNumber, u.Age, u.Proof,
+                         Source = op != null ? op.Source : string.Empty,
+                         Destination = op != null ? op.Destination : string.Empty };
+        });
+
+        return Ok(result);
     }
 
     [HttpPost("operators/{userId}/approve")]
-    public async Task<IActionResult> ApproveBusOperator(string userId, [FromBody] ApproveOperatorRequest request)
+    public async Task<IActionResult> ApproveBusOperator(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound();
 
-        var route = await _context.Routes.FindAsync(request.RouteId);
-        if (route == null) return NotFound("Route not found.");
+        // Use the pending BusOperator record the operator submitted
+        var busOperator = await _context.BusOperators
+            .FirstOrDefaultAsync(o => o.UserId == userId && !o.IsEnabled);
 
-        var busOperator = new BusOperator { UserId = userId, User = user, Source = route.Source, Destination = route.Destination, AssignedRouteId = route.Id, IsEnabled = true };
-        _context.BusOperators.Add(busOperator);
+        if (busOperator == null)
+            return BadRequest("No pending operator request with route info found.");
+
+        // Find or create the matching route
+        var route = await _context.Routes.FirstOrDefaultAsync(r =>
+            r.Source == busOperator.Source && r.Destination == busOperator.Destination);
+        if (route == null)
+        {
+            route = new RouteModel { Source = busOperator.Source, Destination = busOperator.Destination };
+            _context.Routes.Add(route);
+            await _context.SaveChangesAsync();
+        }
+
+        busOperator.AssignedRouteId = route.Id;
+        busOperator.IsEnabled = true;
         user.IsApprovedBusOperator = true;
         user.IsBusOperatorRequest = false;
         await _userManager.UpdateAsync(user);
         await _userManager.AddToRoleAsync(user, "BusOperator");
         await _context.SaveChangesAsync();
+
         if (!string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(user.Name))
             await _emailService.SendApprovalEmailAsync(user.Email, user.Name, "approved");
         return Ok("Approved");
@@ -150,9 +179,162 @@ public class AdminController : ControllerBase {
         await _context.SaveChangesAsync();
         return Ok("Cancelled");
     }
-    [HttpGet("buses")] public async Task<ActionResult<IEnumerable<Bus>>> GetAllBuses() => await _context.Buses.Include(b => b.Route).Include(b => b.BusOperator).ToListAsync();
-    [HttpGet("buses/inactive")] public async Task<ActionResult<IEnumerable<Bus>>> GetInactiveBuses() => await _context.Buses.Include(b => b.Route).Include(b => b.BusOperator).Where(b => !b.IsActive).ToListAsync();
-    [HttpGet("users")] public async Task<ActionResult<IEnumerable<object>>> GetAllUsers() { var users = await _userManager.Users.ToListAsync(); var result = new List<object>(); foreach (var user in users) { var roles = await _userManager.GetRolesAsync(user); result.Add(new { user.Id, user.Email, user.Name, Roles = roles }); } return result; }
+    [HttpPost("buses")]
+    public async Task<IActionResult> AdminCreateBus([FromBody] CreateBusRequest request)
+    {
+        var adminUser = await _userManager.GetUserAsync(User);
+        if (adminUser == null) return Unauthorized();
+
+        if (request.RouteId == null)
+            return BadRequest("RouteId is required when admin creates a bus.");
+
+        var route = await _context.Routes.FindAsync(request.RouteId.Value);
+        if (route == null) return NotFound("Route not found.");
+
+        if (!TimeSpan.TryParse(request.DepartureTime, out var departure))
+            return BadRequest("Invalid departure time format. Use HH:mm.");
+
+        TimeSpan? arrival = null;
+        if (!string.IsNullOrWhiteSpace(request.ArrivalTime))
+        {
+            if (!TimeSpan.TryParse(request.ArrivalTime, out var arrivalParsed))
+                return BadRequest("Invalid arrival time format. Use HH:mm.");
+            arrival = arrivalParsed;
+        }
+
+        BusOperator? busOperator = null;
+        string? operatorUserId = null;
+        if (request.OperatorId.HasValue)
+        {
+            busOperator = await _context.BusOperators.Include(o => o.User).FirstOrDefaultAsync(o => o.Id == request.OperatorId.Value);
+            operatorUserId = busOperator?.UserId;
+        }
+
+        var bus = new Bus
+        {
+            RegistrationNumber = request.RegistrationNumber,
+            BusName = request.BusName,
+            BusType = request.BusType,
+            OperatorId = operatorUserId ?? adminUser.Id,
+            BusOperatorId = busOperator?.Id,
+            RouteId = route.Id,
+            Timing = departure,
+            ArrivalTime = arrival,
+            TravelDate = DateTime.SpecifyKind(request.TravelDate.Date, DateTimeKind.Utc),
+            SeatLayout = request.SeatLayout,
+            TotalSeats = request.TotalSeats,
+            Price = request.Price,
+            BasePrice = request.Price,
+            BoardingPoint = string.IsNullOrWhiteSpace(request.BoardingPoint) ? null : request.BoardingPoint.Trim(),
+            DroppingPoint = string.IsNullOrWhiteSpace(request.DroppingPoint) ? null : request.DroppingPoint.Trim(),
+            IsActive = true
+        };
+
+        _context.Buses.Add(bus);
+        await _context.SaveChangesAsync();
+
+        var seatCodes = string.IsNullOrWhiteSpace(request.SeatLayout)
+            ? GenerateStandardSeats(request.TotalSeats)
+            : ParseSeatCodes(request.SeatLayout);
+
+        foreach (var seatCode in seatCodes)
+        {
+            _context.Seats.Add(new Seat
+            {
+                BusId = bus.Id,
+                SeatCode = seatCode,
+                IsAvailable = true,
+                Status = SeatStatus.Available
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new { bus.Id, bus.RegistrationNumber, Message = "Bus created successfully." });
+    }
+
+    [HttpGet("buses")]
+    public async Task<IActionResult> GetAllBuses()
+    {
+        var buses = await _context.Buses
+            .Include(b => b.Route)
+            .Include(b => b.BusOperator).ThenInclude(op => op!.User)
+            .ToListAsync();
+        return Ok(buses.Select(b => new {
+            b.Id, b.RegistrationNumber, b.Timing, b.TravelDate, b.Price, b.IsActive,
+            Route = b.Route == null ? null : new { b.Route.Source, b.Route.Destination } as object,
+            Operator = b.BusOperator == null ? null : new { b.BusOperator.Id, Name = b.BusOperator.User?.Name ?? "" } as object
+        }));
+    }
+
+    [HttpGet("buses/inactive")]
+    public async Task<IActionResult> GetInactiveBuses()
+    {
+        var buses = await _context.Buses.Include(b => b.Route).Where(b => !b.IsActive).ToListAsync();
+        return Ok(buses.Select(b => new {
+            b.Id, b.RegistrationNumber, b.TravelDate, b.IsActive,
+            Route = b.Route == null ? null : new { b.Route.Source, b.Route.Destination } as object
+        }));
+    }
+
+    [HttpGet("operators")]
+    public async Task<IActionResult> GetAllOperators()
+    {
+        var operators = await _context.BusOperators
+            .Include(o => o.User)
+            .Include(o => o.AssignedRoute)
+            .ToListAsync();
+        return Ok(operators.Select(o => new {
+            o.Id, o.IsEnabled, o.Source, o.Destination,
+            Name = o.User?.Name ?? "",
+            Email = o.User?.Email ?? "",
+            Route = o.AssignedRoute == null ? null : new { o.AssignedRoute.Source, o.AssignedRoute.Destination } as object
+        }));
+    }
+
+    [HttpGet("users")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        var result = new List<object>();
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            result.Add(new { user.Id, user.Email, user.Name, Roles = roles });
+        }
+        return Ok(result);
+    }
+
+    private static IEnumerable<string> GenerateStandardSeats(int totalSeats)
+    {
+        var seats = new List<string>();
+        int rows = (int)Math.Ceiling(totalSeats / 4.0);
+        int count = 0;
+        string[] cols = { "A", "B", "C", "D" };
+        for (int row = 1; row <= rows && count < totalSeats; row++)
+            foreach (var col in cols)
+            {
+                if (count >= totalSeats) break;
+                seats.Add($"{row}{col}");
+                count++;
+            }
+        return seats;
+    }
+
+    private static IEnumerable<string> ParseSeatCodes(string seatLayout)
+    {
+        if (string.IsNullOrWhiteSpace(seatLayout)) return Array.Empty<string>();
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<List<string>>(seatLayout);
+            if (parsed != null && parsed.Any())
+                return parsed.Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s));
+        }
+        catch { }
+        return seatLayout.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
 }
 
-public class CancelBusRequest { public string? CancellationReason { get; set; } }
+public class CancelBusRequest
+{
+    public string? CancellationReason { get; set; }
+}

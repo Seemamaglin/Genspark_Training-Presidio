@@ -1,48 +1,239 @@
-<div class="card" *ngIf="bus">
-  <h2>Book seats for {{ bus.registrationNumber }}</h2>
-  <p><strong>Route:</strong> {{ bus.route.source }} → {{ bus.route.destination }}</p>
-  <p><strong>Date:</strong> {{ bus.travelDate | date }}</p>
-  <p><strong>Time:</strong> {{ bus.timing }}</p>
-  <p><strong>Price per seat:</strong> {{ bus.price | currency }}</p>
-
-  <div class="card">
-    <h3>Select seats</h3>
-    <div>
-      <span *ngFor="let seat of bus.seatCodes" class="seat"
-        [ngClass]="{ 'selected': selectedSeats.includes(seat), 'available': !selectedSeats.includes(seat) }"
-        (click)="toggleSeat(seat)">{{ seat }}</span>
-    </div>
-    <button [disabled]="selectedSeats.length === 0" (click)="lockSeats()">Reserve Seats</button>
-  </div>
-
-  <div class="card" *ngIf="reservationToken">
-    <h3>Passenger & payment details</h3>
-    <p><strong>Reservation token:</strong> {{ reservationToken }}</p>
-    <div *ngFor="let passenger of passengers; index as i" class="card">
-      <h4>Passenger {{ i + 1 }}</h4>
-      <label>Name</label>
-      <input [(ngModel)]="passenger.name" name="name{{i}}" required />
-      <label>Email</label>
-      <input [(ngModel)]="passenger.email" name="email{{i}}" required />
-      <label>Phone</label>
-      <input [(ngModel)]="passenger.phoneNumber" name="phone{{i}}" required />
-      <label>Age</label>
-      <input type="number" [(ngModel)]="passenger.age" name="age{{i}}" required />
-      <label>Seat</label>
-      <input [(ngModel)]="passenger.seatNumber" name="seat{{i}}" readonly />
-    </div>
-    <label>Payment method</label>
-    <select [(ngModel)]="paymentMethod" name="paymentMethod">
-      <option value="card">Card</option>
-      <option value="upi">UPI</option>
-      <option value="timeout">Timeout (simulate)</option>
-    </select>
-    <button (click)="confirmBooking()">Confirm Booking</button>
-  </div>
-
-  <p *ngIf="message" style="color: green">{{ message }}</p>
+<div *ngIf="isLoading" class="card" style="text-align:center;padding:40px">
+  <div class="spinner"></div>
+  <p>Loading bus details…</p>
 </div>
 
-<div *ngIf="!bus" class="card">
-  <p>Loading bus details...</p>
+<!-- Booking confirmed screen -->
+<div *ngIf="bookingConfirmed" class="card booking-success">
+  <div class="success-icon">✓</div>
+  <h2>Booking Confirmed!</h2>
+  <p>Your booking reference is:</p>
+  <div class="booking-ref">{{ confirmedRef }}</div>
+  <p style="color:#666;margin-top:8px">A confirmation email has been sent to your inbox.</p>
+  <button class="btn btn-primary" style="margin-top:20px" (click)="goToDashboard()">View My Bookings</button>
+</div>
+
+<div *ngIf="!isLoading && bus && !bookingConfirmed" class="booking-page">
+
+  <!-- Bus Info Header -->
+  <div class="card bus-header">
+    <div class="bus-title">
+      <h2>{{ bus.busName || bus.registrationNumber }}</h2>
+      <span class="bus-type-badge" *ngIf="bus.busType">{{ bus.busType }}</span>
+    </div>
+    <div class="bus-meta">
+      <div class="meta-item">
+        <span class="meta-label">From</span>
+        <span class="meta-value">{{ bus.route?.source }}</span>
+      </div>
+      <div class="meta-arrow">→</div>
+      <div class="meta-item">
+        <span class="meta-label">To</span>
+        <span class="meta-value">{{ bus.route?.destination }}</span>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item">
+        <span class="meta-label">Date</span>
+        <span class="meta-value">{{ bus.travelDate | date:'EEE, MMM d, y' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Departure</span>
+        <span class="meta-value dep-time">{{ bus.departureTime }}</span>
+      </div>
+      <div *ngIf="bus.arrivalTime" class="meta-item">
+        <span class="meta-label">Arrival</span>
+        <span class="meta-value">{{ bus.arrivalTime }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Price/Seat</span>
+        <span class="meta-value price-val">₹{{ bus.price }}</span>
+      </div>
+    </div>
+    <p class="seat-avail-info">
+      <strong>{{ bus.availableSeats }}</strong> of <strong>{{ bus.totalSeats }}</strong> seats available
+    </p>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="step-bar card" style="display:flex;gap:0;padding:0;overflow:hidden;margin-bottom:0">
+    <div class="step-item" [class.step-active]="step===1" [class.step-done]="step>1">
+      <span class="step-num">1</span><span class="step-label">Select Seats</span>
+    </div>
+    <div class="step-item" [class.step-active]="step===2" [class.step-done]="step>2">
+      <span class="step-num">2</span><span class="step-label">Pick Stops</span>
+    </div>
+    <div class="step-item" [class.step-active]="step===3">
+      <span class="step-num">3</span><span class="step-label">Passenger &amp; Pay</span>
+    </div>
+  </div>
+
+  <!-- Timer (visible on steps 2 and 3) -->
+  <div class="timer-bar" *ngIf="reservationToken && step > 1" [class.timer-urgent]="secondsLeft < 60">
+    <span>Seats {{ selectedSeats.join(', ') }} reserved — complete payment in <strong>{{ timerDisplay }}</strong></span>
+  </div>
+
+  <!-- STEP 1: Seat Selection -->
+  <div class="card" *ngIf="step === 1">
+    <h3 class="section-title">Select Your Seats</h3>
+    <div class="seat-legend">
+      <div class="legend-item"><span class="seat-btn available">1A</span><span>Available</span></div>
+      <div class="legend-item"><span class="seat-btn selected">1B</span><span>Selected</span></div>
+      <div class="legend-item"><span class="seat-btn locked">1C</span><span>Locked</span></div>
+      <div class="legend-item"><span class="seat-btn unavailable">1D</span><span>Booked</span></div>
+    </div>
+    <div class="bus-layout">
+      <div class="bus-front"><div class="driver-seat">🚌 Driver</div></div>
+      <div class="seat-matrix">
+        <div class="seat-matrix-header">
+          <span class="col-label">Window</span><span class="col-label">Aisle</span>
+          <span class="aisle-gap"></span>
+          <span class="col-label">Aisle</span><span class="col-label">Window</span>
+        </div>
+        <div class="seat-row" *ngFor="let row of getSeatRows(); index as rowIndex">
+          <span class="row-number">{{ rowIndex + 1 }}</span>
+          <ng-container *ngFor="let seat of row; index as colIndex">
+            <span *ngIf="colIndex === 2" class="aisle-gap"></span>
+            <button *ngIf="seat" class="seat-btn" [ngClass]="getSeatState(seat)"
+              [title]="seat.seatCode" [disabled]="!seat.isAvailable || seat.isLocked"
+              (click)="toggleSeat(seat)">{{ seat.seatCode }}</button>
+            <span *ngIf="!seat" class="seat-empty"></span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="selectedSeats.length > 0" class="selected-summary">
+      <p>Selected: <strong>{{ selectedSeats.join(', ') }}</strong></p>
+      <p>Total: <strong class="price-total">₹{{ selectedSeats.length * bus.price }}</strong></p>
+      <button class="btn btn-primary" (click)="lockSeats()">
+        Reserve {{ selectedSeats.length }} Seat{{ selectedSeats.length > 1 ? 's' : '' }} — Continue
+      </button>
+    </div>
+    <button *ngIf="selectedSeats.length === 0" class="btn btn-primary" disabled>Select seats to continue</button>
+  </div>
+
+  <!-- STEP 2: Stop Picker -->
+  <div class="card" *ngIf="step === 2">
+    <h3 class="section-title">Choose Your Boarding &amp; Dropping Stops</h3>
+    <p style="color:#64748b;font-size:0.9rem;margin-bottom:16px">
+      {{ bus.route?.source }} → {{ bus.route?.destination }}
+    </p>
+
+    <div class="stop-picker">
+      <!-- Boarding -->
+      <div class="stop-picker-col">
+        <h4 style="color:#16a34a">Boarding Stop
+          <small style="color:#64748b;font-weight:400"> ({{ bus.route?.source }})</small>
+        </h4>
+        <div *ngIf="busStops.boarding.length === 0" style="color:#64748b;font-size:0.9rem">
+          No specific stops — boarding at {{ bus.boardingPoint || bus.route?.source }}.
+        </div>
+        <label *ngFor="let s of busStops.boarding" class="stop-option"
+          [class.selected]="selectedPickup === s.stopName" (click)="selectedPickup = s.stopName">
+          <input type="radio" [value]="s.stopName" [(ngModel)]="selectedPickup" name="pickup" />
+          {{ s.stopName }}
+        </label>
+      </div>
+
+      <!-- Dropping -->
+      <div class="stop-picker-col">
+        <h4 style="color:#dc2626">Dropping Stop
+          <small style="color:#64748b;font-weight:400"> ({{ bus.route?.destination }})</small>
+        </h4>
+        <div *ngIf="busStops.dropping.length === 0" style="color:#64748b;font-size:0.9rem">
+          No specific stops — dropping at {{ bus.droppingPoint || bus.route?.destination }}.
+        </div>
+        <label *ngFor="let s of busStops.dropping" class="stop-option"
+          [class.selected]="selectedDropping === s.stopName" (click)="selectedDropping = s.stopName">
+          <input type="radio" [value]="s.stopName" [(ngModel)]="selectedDropping" name="dropping" />
+          {{ s.stopName }}
+        </label>
+      </div>
+    </div>
+
+    <div *ngIf="message" class="alert alert-error" style="margin-bottom:12px">{{ message }}</div>
+    <button class="btn btn-primary btn-large" (click)="confirmStops()">Continue to Passenger Details</button>
+    <button class="btn" style="margin-left:12px" (click)="step=1; message=''">Back</button>
+  </div>
+
+  <!-- STEP 3: Passenger Details + Payment -->
+  <div class="card" *ngIf="step === 3">
+    <!-- Stops summary -->
+    <div class="selected-stops-summary" *ngIf="selectedPickup || selectedDropping"
+      style="background:var(--bg);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:0.9rem;display:flex;gap:24px">
+      <span *ngIf="selectedPickup">Boarding: <strong>{{ selectedPickup }}</strong></span>
+      <span *ngIf="selectedDropping">Dropping: <strong>{{ selectedDropping }}</strong></span>
+    </div>
+
+    <h3 class="section-title">Passenger Details</h3>
+    <div *ngFor="let passenger of passengers; index as i" class="passenger-card">
+      <div class="passenger-header">
+        <span>Passenger {{ i + 1 }}</span>
+        <span class="seat-badge">Seat {{ passenger.seatNumber }}</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input [(ngModel)]="passenger.name" name="name{{i}}" required placeholder="As on ID proof" />
+        </div>
+        <div class="form-group">
+          <label>Age *</label>
+          <input type="number" [(ngModel)]="passenger.age" name="age{{i}}" min="1" max="120" required />
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="passenger.email" name="email{{i}}" required placeholder="For ticket confirmation" />
+        </div>
+        <div class="form-group">
+          <label>Phone *</label>
+          <input [(ngModel)]="passenger.phoneNumber" name="phone{{i}}" required placeholder="10-digit mobile number" />
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-section">
+      <h3 class="section-title">Payment</h3>
+      <div class="payment-methods">
+        <label class="payment-option" [class.active]="paymentMethod === 'card'">
+          <input type="radio" [(ngModel)]="paymentMethod" value="card" name="pm" />
+          <span>💳 Debit / Credit Card</span>
+        </label>
+        <label class="payment-option" [class.active]="paymentMethod === 'upi'">
+          <input type="radio" [(ngModel)]="paymentMethod" value="upi" name="pm" />
+          <span>📱 UPI</span>
+        </label>
+        <label class="payment-option" [class.active]="paymentMethod === 'netbanking'">
+          <input type="radio" [(ngModel)]="paymentMethod" value="netbanking" name="pm" />
+          <span>🏦 Net Banking</span>
+        </label>
+        <label class="payment-option test-mode" [class.active]="paymentMethod === 'timeout'">
+          <input type="radio" [(ngModel)]="paymentMethod" value="timeout" name="pm" />
+          <span>⚠ Simulate Timeout (test)</span>
+        </label>
+      </div>
+      <div class="fare-summary">
+        <div class="fare-row">
+          <span>Base fare × {{ passengers.length }} passenger{{ passengers.length > 1 ? 's' : '' }}</span>
+          <span>₹{{ selectedSeats.length * bus.price }}</span>
+        </div>
+        <div class="fare-row total-row">
+          <span><strong>Total Amount</strong></span>
+          <span><strong class="price-total">₹{{ selectedSeats.length * bus.price }}</strong></span>
+        </div>
+      </div>
+      <div *ngIf="!auth.isAuthenticated()" class="login-notice">
+        ⚠ You need to <a routerLink="/auth">log in or sign up</a> to complete your booking.
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-success btn-large" (click)="confirmBooking()" [disabled]="!isPassengersValid()">
+          Confirm &amp; Pay ₹{{ selectedSeats.length * bus.price }}
+        </button>
+        <button class="btn" (click)="step=2; message=''">Back to Stops</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="message && step !== 2" class="alert" [class.alert-error]="!isSuccess" [class.alert-success]="isSuccess">
+    {{ message }}
+  </div>
 </div>

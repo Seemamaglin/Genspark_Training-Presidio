@@ -16,4 +16,5 @@ public class BusOperator
     public Route? AssignedRoute { get; set; }
     public bool IsEnabled { get; set; } = true;
     public ICollection<Bus> Buses { get; set; } = new List<Bus>();
+    public ICollection<OperatorStop> Stops { get; set; } = new List<OperatorStop>();
 }

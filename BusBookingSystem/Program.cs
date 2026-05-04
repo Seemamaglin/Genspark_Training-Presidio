@@ -9,7 +9,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -87,19 +88,35 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     await EnsureDefaultRolesAsync(roleManager);
+    await SeedAdminUserAsync(userManager);
 }
 
 static async Task EnsureDefaultRolesAsync(RoleManager<IdentityRole> roleManager)
 {
-    var roles = new[] { "User", "BusOperator", "Admin" };
-    foreach (var role in roles)
+    foreach (var role in new[] { "User", "BusOperator", "Admin" })
     {
         if (!await roleManager.RoleExistsAsync(role))
-        {
             await roleManager.CreateAsync(new IdentityRole(role));
-        }
     }
+}
+
+static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
+{
+    const string adminEmail = "admin@busbooking.com";
+    if (await userManager.FindByEmailAsync(adminEmail) != null) return;
+
+    var admin = new ApplicationUser
+    {
+        UserName = adminEmail,
+        Email = adminEmail,
+        Name = "System Admin",
+        EmailConfirmed = true
+    };
+    var result = await userManager.CreateAsync(admin, "Admin@1234");
+    if (result.Succeeded)
+        await userManager.AddToRoleAsync(admin, "Admin");
 }
 
 app.UseSwagger();

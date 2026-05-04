@@ -1,0 +1,353 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (33ms) [Parameters=[@__normalizedName_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."ConcurrencyStamp", a."Name", a."NormalizedName"
+      FROM "AspNetRoles" AS a
+      WHERE a."NormalizedName" = @__normalizedName_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedName_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."ConcurrencyStamp", a."Name", a."NormalizedName"
+      FROM "AspNetRoles" AS a
+      WHERE a."NormalizedName" = @__normalizedName_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."ConcurrencyStamp", a."Name", a."NormalizedName"
+      FROM "AspNetRoles" AS a
+      WHERE a."NormalizedName" = @__normalizedName_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__normalizedEmail_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."NormalizedEmail" = @__normalizedEmail_0
+      LIMIT 2
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: E:\seema-project\repo\BusBookingSystem
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@__ToLower_0='?', @__ToLower_1='?', @__utcDate_2='?' (DbType = DateTime), @__utcNext_3='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", b0."Id", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId", a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Buses" AS b
+      INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+      LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+      LEFT JOIN "AspNetUsers" AS a ON b0."UserId" = a."Id"
+      LEFT JOIN "Seats" AS s ON b."Id" = s."BusId"
+      WHERE lower(r."Source") = @__ToLower_0 AND lower(r."Destination") = @__ToLower_1 AND b."IsActive" AND b."TravelDate" >= @__utcDate_2 AND b."TravelDate" < @__utcNext_3
+      ORDER BY b."Id", r."Id", b0."Id", a."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", o."Id", o."BusOperatorId", o."SortOrder", o."StopName", o."Type"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", b0."Id" AS "Id0", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId"
+          FROM "Buses" AS b
+          LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "OperatorStops" AS o ON t."Id0" = o."BusOperatorId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__ToLower_0='?', @__ToLower_1='?', @__utcDate_2='?' (DbType = DateTime), @__utcNext_3='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", b0."Id", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId", a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Buses" AS b
+      INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+      LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+      LEFT JOIN "AspNetUsers" AS a ON b0."UserId" = a."Id"
+      LEFT JOIN "Seats" AS s ON b."Id" = s."BusId"
+      WHERE lower(r."Source") = @__ToLower_0 AND lower(r."Destination") = @__ToLower_1 AND b."IsActive" AND b."TravelDate" >= @__utcDate_2 AND b."TravelDate" < @__utcNext_3
+      ORDER BY b."Id", r."Id", b0."Id", a."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."Destination", t."DistanceKm", t."IsActive0", t."Source", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id" AS "Id0", r."Destination", r."DistanceKm", r."IsActive" AS "IsActive0", r."Source"
+          FROM "Buses" AS b
+          INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Seats" AS s ON t."Id" = s."BusId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", o."Id", o."BusOperatorId", o."SortOrder", o."StopName", o."Type"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", b0."Id" AS "Id0", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId"
+          FROM "Buses" AS b
+          LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "OperatorStops" AS o ON t."Id0" = o."BusOperatorId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__busId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Seats" AS s
+      WHERE s."BusId" = @__busId_0 AND s."LockedUntil" IS NOT NULL AND s."LockedUntil" < now()
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Seats" SET "LockedBySessionId" = @p0, "LockedUntil" = @p1
+      WHERE "Id" = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_BusId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate"
+          FROM "Buses" AS b
+          WHERE b."Id" = @__request_BusId_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Seats" AS s ON t."Id" = s."BusId"
+      ORDER BY t."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Seats" SET "LockedBySessionId" = @p0, "LockedUntil" = @p1
+      WHERE "Id" = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__normalizedEmail_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."NormalizedEmail" = @__normalizedEmail_0
+      LIMIT 2
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__userId_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a0."Name"
+      FROM "AspNetUserRoles" AS a
+      INNER JOIN "AspNetRoles" AS a0 ON a."RoleId" = a0."Id"
+      WHERE a."UserId" = @__userId_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."BookingDate", b."BookingReference", b."BusId", b."CancellationReason", b."CreatedAt", b."DroppingStop", b."PickupStop", b."ScheduleId", b."Status", b."TotalAmount", b."UserId", b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", p."Id", p."Amount", p."BookingId", p."CompletedAt", p."InitiatedAt", p."PaymentDate", p."PaymentMethod", p."RefundAmount", p."RefundReason", p."SimulatedOutcome", p."Status", p."TransactionId"
+      FROM "Bookings" AS b
+      INNER JOIN "Buses" AS b0 ON b."BusId" = b0."Id"
+      INNER JOIN "Routes" AS r ON b0."RouteId" = r."Id"
+      LEFT JOIN "Payments" AS p ON b."Id" = p."BookingId"
+      WHERE b."UserId" = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate"
+      FROM (
+          SELECT b."Id", b."AssignedRouteId", b."Destination", b."IsEnabled", b."Source", b."UserId"
+          FROM "BusOperators" AS b
+          WHERE b."UserId" = @__user_Id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Buses" AS b0 ON t."Id" = b0."BusOperatorId"
+      ORDER BY t."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", o."Id", o."BusOperatorId", o."SortOrder", o."StopName", o."Type"
+      FROM (
+          SELECT b."Id", b."AssignedRouteId", b."Destination", b."IsEnabled", b."Source", b."UserId"
+          FROM "BusOperators" AS b
+          WHERE b."UserId" = @__user_Id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "OperatorStops" AS o ON t."Id" = o."BusOperatorId"
+      ORDER BY t."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__operator_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Buses" AS b
+      INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+      LEFT JOIN "Seats" AS s ON b."Id" = s."BusId"
+      WHERE b."BusOperatorId" = @__operator_Id_0
+      ORDER BY b."Id", r."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."AssignedRouteId", b."Destination", b."IsEnabled", b."Source", b."UserId", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source"
+      FROM "BusOperators" AS b
+      LEFT JOIN "Routes" AS r ON b."AssignedRouteId" = r."Id"
+      WHERE b."UserId" = @__user_Id_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate"
+      FROM (
+          SELECT b."Id", b."AssignedRouteId", b."Destination", b."IsEnabled", b."Source", b."UserId"
+          FROM "BusOperators" AS b
+          WHERE b."UserId" = @__user_Id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Buses" AS b0 ON t."Id" = b0."BusOperatorId"
+      ORDER BY t."Id"
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", t0."Id", t0."ArrivalTime", t0."BasePrice", t0."BoardingPoint", t0."BusName", t0."BusOperatorId", t0."BusType", t0."CancellationReason", t0."CreatedAt", t0."DroppingPoint", t0."IsActive", t0."OperatorId", t0."Price", t0."RegistrationNumber", t0."RouteId", t0."SeatLayout", t0."Status", t0."Timing", t0."TotalSeats", t0."TravelDate", t0."Id0", t0."BookingDate", t0."BookingReference", t0."BusId", t0."CancellationReason0", t0."CreatedAt0", t0."DroppingStop", t0."PickupStop", t0."ScheduleId", t0."Status0", t0."TotalAmount", t0."UserId", t0."Id00", t0."Amount", t0."BookingId", t0."CompletedAt", t0."InitiatedAt", t0."PaymentDate", t0."PaymentMethod", t0."RefundAmount", t0."RefundReason", t0."SimulatedOutcome", t0."Status00", t0."TransactionId"
+      FROM (
+          SELECT b."Id", b."AssignedRouteId", b."Destination", b."IsEnabled", b."Source", b."UserId"
+          FROM "BusOperators" AS b
+          WHERE b."UserId" = @__user_Id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN (
+          SELECT b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate", t1."Id" AS "Id0", t1."BookingDate", t1."BookingReference", t1."BusId", t1."CancellationReason" AS "CancellationReason0", t1."CreatedAt" AS "CreatedAt0", t1."DroppingStop", t1."PickupStop", t1."ScheduleId", t1."Status" AS "Status0", t1."TotalAmount", t1."UserId", t1."Id0" AS "Id00", t1."Amount", t1."BookingId", t1."CompletedAt", t1."InitiatedAt", t1."PaymentDate", t1."PaymentMethod", t1."RefundAmount", t1."RefundReason", t1."SimulatedOutcome", t1."Status0" AS "Status00", t1."TransactionId"
+          FROM "Buses" AS b0
+          LEFT JOIN (
+              SELECT b1."Id", b1."BookingDate", b1."BookingReference", b1."BusId", b1."CancellationReason", b1."CreatedAt", b1."DroppingStop", b1."PickupStop", b1."ScheduleId", b1."Status", b1."TotalAmount", b1."UserId", p."Id" AS "Id0", p."Amount", p."BookingId", p."CompletedAt", p."InitiatedAt", p."PaymentDate", p."PaymentMethod", p."RefundAmount", p."RefundReason", p."SimulatedOutcome", p."Status" AS "Status0", p."TransactionId"
+              FROM "Bookings" AS b1
+              LEFT JOIN "Payments" AS p ON b1."Id" = p."BookingId"
+          ) AS t1 ON b0."Id" = t1."BusId"
+      ) AS t0 ON t."Id" = t0."BusOperatorId"
+      ORDER BY t."Id", t0."Id", t0."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (44ms) [Parameters=[@__Select_0='?' (DbType = Object)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."BookingDate", b."BookingReference", b."BusId", b."CancellationReason", b."CreatedAt", b."DroppingStop", b."PickupStop", b."ScheduleId", b."Status", b."TotalAmount", b."UserId", b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate", a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName", p."Id", p."Amount", p."BookingId", p."CompletedAt", p."InitiatedAt", p."PaymentDate", p."PaymentMethod", p."RefundAmount", p."RefundReason", p."SimulatedOutcome", p."Status", p."TransactionId", p0."Id", p0."Age", p0."BookingId", p0."Destination", p0."Email", p0."Name", p0."PhoneNumber", p0."Proof", p0."SeatNumber", p0."Source"
+      FROM "Bookings" AS b
+      INNER JOIN "Buses" AS b0 ON b."BusId" = b0."Id"
+      INNER JOIN "AspNetUsers" AS a ON b."UserId" = a."Id"
+      LEFT JOIN "Payments" AS p ON b."Id" = p."BookingId"
+      LEFT JOIN "PassengerDetails" AS p0 ON b."Id" = p0."BookingId"
+      WHERE b."BusId" = ANY (@__Select_0)
+      ORDER BY b."Id", b0."Id", a."Id", p."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__p_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."Id" = @__p_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@__user_Id_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."BookingDate", b."BookingReference", b."BusId", b."CancellationReason", b."CreatedAt", b."DroppingStop", b."PickupStop", b."ScheduleId", b."Status", b."TotalAmount", b."UserId", b0."Id", b0."ArrivalTime", b0."BasePrice", b0."BoardingPoint", b0."BusName", b0."BusOperatorId", b0."BusType", b0."CancellationReason", b0."CreatedAt", b0."DroppingPoint", b0."IsActive", b0."OperatorId", b0."Price", b0."RegistrationNumber", b0."RouteId", b0."SeatLayout", b0."Status", b0."Timing", b0."TotalSeats", b0."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", p."Id", p."Amount", p."BookingId", p."CompletedAt", p."InitiatedAt", p."PaymentDate", p."PaymentMethod", p."RefundAmount", p."RefundReason", p."SimulatedOutcome", p."Status", p."TransactionId"
+      FROM "Bookings" AS b
+      INNER JOIN "Buses" AS b0 ON b."BusId" = b0."Id"
+      INNER JOIN "Routes" AS r ON b0."RouteId" = r."Id"
+      LEFT JOIN "Payments" AS p ON b."Id" = p."BookingId"
+      WHERE b."UserId" = @__user_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__ToLower_0='?', @__ToLower_1='?', @__utcDate_2='?' (DbType = DateTime), @__utcNext_3='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", b0."Id", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId", a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Buses" AS b
+      INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+      LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+      LEFT JOIN "AspNetUsers" AS a ON b0."UserId" = a."Id"
+      LEFT JOIN "Seats" AS s ON b."Id" = s."BusId"
+      WHERE lower(r."Source") = @__ToLower_0 AND lower(r."Destination") = @__ToLower_1 AND b."IsActive" AND b."TravelDate" >= @__utcDate_2 AND b."TravelDate" < @__utcNext_3
+      ORDER BY b."Id", r."Id", b0."Id", a."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."Destination", t."DistanceKm", t."IsActive0", t."Source", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id" AS "Id0", r."Destination", r."DistanceKm", r."IsActive" AS "IsActive0", r."Source"
+          FROM "Buses" AS b
+          INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Seats" AS s ON t."Id" = s."BusId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", o."Id", o."BusOperatorId", o."SortOrder", o."StopName", o."Type"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", b0."Id" AS "Id0", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId"
+          FROM "Buses" AS b
+          LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "OperatorStops" AS o ON t."Id0" = o."BusOperatorId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__busId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Seats" AS s
+      WHERE s."BusId" = @__busId_0 AND s."LockedUntil" IS NOT NULL AND s."LockedUntil" < now()
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Seats" SET "LockedBySessionId" = @p0, "LockedUntil" = @p1
+      WHERE "Id" = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__request_BusId_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate"
+          FROM "Buses" AS b
+          WHERE b."Id" = @__request_BusId_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Seats" AS s ON t."Id" = s."BusId"
+      ORDER BY t."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p2='?' (DbType = Guid), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      UPDATE "Seats" SET "LockedBySessionId" = @p0, "LockedUntil" = @p1
+      WHERE "Id" = @p2;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@__ToLower_0='?', @__ToLower_1='?', @__utcDate_2='?' (DbType = DateTime), @__utcNext_3='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id", r."Destination", r."DistanceKm", r."IsActive", r."Source", b0."Id", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId", a."Id", a."AccessFailedCount", a."Age", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FullName", a."IdProof", a."IsActive", a."IsApprovedBusOperator", a."IsBusOperatorRequest", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM "Buses" AS b
+      INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+      LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+      LEFT JOIN "AspNetUsers" AS a ON b0."UserId" = a."Id"
+      LEFT JOIN "Seats" AS s ON b."Id" = s."BusId"
+      WHERE lower(r."Source") = @__ToLower_0 AND lower(r."Destination") = @__ToLower_1 AND b."IsActive" AND b."TravelDate" >= @__utcDate_2 AND b."TravelDate" < @__utcNext_3
+      ORDER BY b."Id", r."Id", b0."Id", a."Id"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."Destination", t."DistanceKm", t."IsActive0", t."Source", s."Id", s."BookedByUserId", s."BusId", s."IsAvailable", s."LockedBySessionId", s."LockedByUserId", s."LockedUntil", s."ScheduleId", s."SeatCode", s."Status"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", r."Id" AS "Id0", r."Destination", r."DistanceKm", r."IsActive" AS "IsActive0", r."Source"
+          FROM "Buses" AS b
+          INNER JOIN "Routes" AS r ON b."RouteId" = r."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "Seats" AS s ON t."Id" = s."BusId"
+      ORDER BY t."Id", t."Id0"
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@__id_0='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT t."Id", t."ArrivalTime", t."BasePrice", t."BoardingPoint", t."BusName", t."BusOperatorId", t."BusType", t."CancellationReason", t."CreatedAt", t."DroppingPoint", t."IsActive", t."OperatorId", t."Price", t."RegistrationNumber", t."RouteId", t."SeatLayout", t."Status", t."Timing", t."TotalSeats", t."TravelDate", t."Id0", t."AssignedRouteId", t."Destination", t."IsEnabled", t."Source", t."UserId", o."Id", o."BusOperatorId", o."SortOrder", o."StopName", o."Type"
+      FROM (
+          SELECT b."Id", b."ArrivalTime", b."BasePrice", b."BoardingPoint", b."BusName", b."BusOperatorId", b."BusType", b."CancellationReason", b."CreatedAt", b."DroppingPoint", b."IsActive", b."OperatorId", b."Price", b."RegistrationNumber", b."RouteId", b."SeatLayout", b."Status", b."Timing", b."TotalSeats", b."TravelDate", b0."Id" AS "Id0", b0."AssignedRouteId", b0."Destination", b0."IsEnabled", b0."Source", b0."UserId"
+          FROM "Buses" AS b
+          LEFT JOIN "BusOperators" AS b0 ON b."BusOperatorId" = b0."Id"
+          WHERE b."Id" = @__id_0
+          LIMIT 1
+      ) AS t
+      LEFT JOIN "OperatorStops" AS o ON t."Id0" = o."BusOperatorId"
+      ORDER BY t."Id", t."Id0"

@@ -1,13 +1,41 @@
-<div class="card">
-  <h1>Bus Booking System</h1>
-  <p>Search buses, lock seats, pay with a dummy gateway, and manage your bookings.</p>
-  <button (click)="goToSearch()">Search Buses</button>
+<div class="hero-card card">
+  <h1>Book Bus Tickets Online</h1>
+  <p>Search from hundreds of routes. Select your seats. Pay instantly. Travel worry-free.</p>
+  <button class="btn btn-primary" (click)="goToSearch()" style="font-size:1rem; padding:0.75rem 2rem; margin-top:0.5rem">
+    Search Buses Now
+  </button>
 </div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem">
+  <div class="card feature-card">
+    <div class="feature-icon">🚌</div>
+    <h3>Wide Route Coverage</h3>
+    <p>Multiple routes across cities. Find the right bus for your journey.</p>
+  </div>
+  <div class="card feature-card">
+    <div class="feature-icon">💺</div>
+    <h3>Choose Your Seat</h3>
+    <p>Visual seat layout. Pick your preferred seat and reserve it instantly.</p>
+  </div>
+  <div class="card feature-card">
+    <div class="feature-icon">💳</div>
+    <h3>Secure Payments</h3>
+    <p>Simulated payment gateway. Card, UPI — fast and safe checkout.</p>
+  </div>
+  <div class="card feature-card">
+    <div class="feature-icon">📧</div>
+    <h3>Instant Confirmation</h3>
+    <p>Booking confirmation sent to your email the moment you pay.</p>
+  </div>
+</div>
+
 <div class="card">
-  <h2>Quick Links</h2>
-  <ul>
-    <li><a routerLink="/search">Search buses</a></li>
-    <li><a routerLink="/auth">Login / Signup</a></li>
-    <li><a routerLink="/dashboard">My bookings</a></li>
-  </ul>
+  <h3>How it works</h3>
+  <ol class="steps">
+    <li><strong>Search</strong> — Enter source, destination &amp; travel date</li>
+    <li><strong>Select Seats</strong> — Choose from available seats on the bus</li>
+    <li><strong>Sign In</strong> — Login or create a free account</li>
+    <li><strong>Pay</strong> — Complete the dummy payment in seconds</li>
+    <li><strong>Travel</strong> — Get your confirmation and board!</li>
+  </ol>
 </div>

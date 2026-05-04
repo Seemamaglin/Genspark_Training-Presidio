@@ -1,38 +1,210 @@
-<div class="card">
-  <h2>Admin Panel</h2>
-  <div class="card">
-    <h3>Create route</h3>
-    <label>Source</label>
-    <input [(ngModel)]="newRoute.source" name="source" />
-    <label>Destination</label>
-    <input [(ngModel)]="newRoute.destination" name="destination" />
-    <button (click)="createRoute()">Create Route</button>
+<div class="admin-panel">
+  <h2 class="page-title">Admin Panel</h2>
+
+  <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+  <!-- REVENUE -->
+  <div class="card" *ngIf="revenue">
+    <h3>Revenue Overview</h3>
+    <p class="revenue-total">Total Revenue: <strong>{{ revenue.total | currency:'INR':'symbol':'1.0-0' }}</strong></p>
+    <table class="data-table" *ngIf="revenue.byOperator?.length > 0">
+      <thead>
+        <tr><th>Operator</th><th>Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let op of revenue.byOperator">
+          <td>{{ op.opName || 'Unknown' }}</td>
+          <td>{{ op.revenue | currency:'INR':'symbol':'1.0-0' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="!revenue.byOperator?.length">No operator revenue data yet.</p>
   </div>
 
+  <!-- ROUTES -->
   <div class="card">
-    <h3>Routes</h3>
-    <div *ngIf="routes.length === 0">No routes yet.</div>
-    <div *ngFor="let route of routes" class="card">
-      <p><strong>{{ route.source }}</strong> → <strong>{{ route.destination }}</strong></p>
+    <h3>Manage Routes</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Source</label>
+        <input [(ngModel)]="newRoute.source" name="source" placeholder="e.g. Chennai" />
+      </div>
+      <div class="form-group">
+        <label>Destination</label>
+        <input [(ngModel)]="newRoute.destination" name="destination" placeholder="e.g. Coimbatore" />
+      </div>
+      <button class="btn btn-primary" style="align-self:flex-end" (click)="createRoute()">Add Route</button>
     </div>
+    <table class="data-table" *ngIf="routes.length > 0">
+      <thead><tr><th>Source</th><th>Destination</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let route of routes">
+          <td>{{ route.source }}</td>
+          <td>{{ route.destination }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="routes.length === 0" class="empty-state">No routes yet. Add one above.</p>
   </div>
 
+  <!-- ADD BUS (Admin) -->
   <div class="card">
-    <h3>Operator requests</h3>
-    <div *ngIf="requests.length === 0">No pending operator requests.</div>
-    <div *ngFor="let request of requests" class="card">
-      <p><strong>{{ request.name }}</strong> ({{ request.email }})</p>
-      <label>Assign route</label>
-      <select [(ngModel)]="assignRoute[request.id]" name="assignRoute{{request.id}}">
-        <option [ngValue]="null">Select a route</option>
-        <option *ngFor="let route of routes" [ngValue]="route.id">{{ route.source }} → {{ route.destination }}</option>
-      </select>
-      <div style="margin-top: 0.5rem;">
-        <button (click)="approveRequest(request)">Approve</button>
-        <button (click)="rejectRequest(request)">Reject</button>
+    <h3>Add Bus Directly</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Registration Number *</label>
+        <input [(ngModel)]="newBus.registrationNumber" name="bRegNum" placeholder="e.g. TN01AB1234" />
+      </div>
+      <div class="form-group">
+        <label>Bus Name</label>
+        <input [(ngModel)]="newBus.busName" name="bName" placeholder="e.g. Express Travels" />
+      </div>
+      <div class="form-group">
+        <label>Bus Type</label>
+        <select [(ngModel)]="newBus.busType" name="bType">
+          <option value="AC Seater">AC Seater</option>
+          <option value="Non-AC Seater">Non-AC Seater</option>
+          <option value="AC Sleeper">AC Sleeper</option>
+          <option value="Semi-Sleeper">Semi-Sleeper</option>
+          <option value="Volvo AC">Volvo AC</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Route *</label>
+        <select [(ngModel)]="newBus.routeId" name="bRoute">
+          <option value="">— select route —</option>
+          <option *ngFor="let r of routes" [value]="r.id">{{ r.source }} → {{ r.destination }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Travel Date *</label>
+        <input type="date" [(ngModel)]="newBus.travelDate" name="bDate" [min]="today" />
+      </div>
+      <div class="form-group">
+        <label>Departure Time *</label>
+        <input type="time" [(ngModel)]="newBus.departureTime" name="bDep" />
+      </div>
+      <div class="form-group">
+        <label>Arrival Time</label>
+        <input type="time" [(ngModel)]="newBus.arrivalTime" name="bArr" />
+      </div>
+      <div class="form-group">
+        <label>Total Seats</label>
+        <select [(ngModel)]="newBus.totalSeats" name="bSeats">
+          <option [value]="20">20</option>
+          <option [value]="32">32</option>
+          <option [value]="40">40 (Standard)</option>
+          <option [value]="45">45</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Price per Seat (₹) *</label>
+        <input type="number" [(ngModel)]="newBus.price" name="bPrice" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Assign to Operator (optional)</label>
+        <select [(ngModel)]="newBus.operatorId" name="bOperator">
+          <option [ngValue]="null">— no operator —</option>
+          <option *ngFor="let op of operators" [ngValue]="op.id">{{ op.name }} ({{ op.source }} → {{ op.destination }})</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px" (click)="adminCreateBus()">Create Bus</button>
+  </div>
+
+  <!-- OPERATOR REQUESTS -->
+  <div class="card">
+    <h3>Pending Operator Requests</h3>
+    <div *ngIf="requests.length === 0" class="empty-state">No pending requests.</div>
+    <div *ngFor="let req of requests" class="request-card">
+      <div class="request-info">
+        <p><strong>{{ req.name }}</strong> &lt;{{ req.email }}&gt;</p>
+        <p *ngIf="req.phoneNumber">Phone: {{ req.phoneNumber }}</p>
+        <p>
+          <span class="route-badge">{{ req.source }} → {{ req.destination }}</span>
+        </p>
+      </div>
+      <div class="request-actions">
+        <button class="btn btn-success" (click)="approveRequest(req)">Approve</button>
+        <button class="btn btn-danger" (click)="rejectRequest(req)">Reject</button>
       </div>
     </div>
   </div>
 
-  <p *ngIf="error" style="color:red">{{ error }}</p>
+  <!-- OPERATORS MANAGEMENT -->
+  <div class="card">
+    <h3>Bus Operators</h3>
+    <div *ngIf="operators.length === 0" class="empty-state">No approved operators yet.</div>
+    <table class="data-table" *ngIf="operators.length > 0">
+      <thead>
+        <tr><th>Name</th><th>Route</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let op of operators">
+          <td>{{ op.name }}<br><small>{{ op.email }}</small></td>
+          <td>{{ op.source }} → {{ op.destination }}</td>
+          <td>
+            <span class="badge" [class.badge-success]="op.isEnabled" [class.badge-danger]="!op.isEnabled">
+              {{ op.isEnabled ? 'Active' : 'Disabled' }}
+            </span>
+          </td>
+          <td>
+            <button *ngIf="op.isEnabled" class="btn btn-sm btn-danger" (click)="disableOperator(op)">Disable</button>
+            <button *ngIf="!op.isEnabled" class="btn btn-sm btn-success" (click)="enableOperator(op)">Enable</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ALL BUSES -->
+  <div class="card">
+    <h3>All Buses</h3>
+    <div *ngIf="allBuses.length === 0" class="empty-state">No buses registered yet.</div>
+    <table class="data-table" *ngIf="allBuses.length > 0">
+      <thead>
+        <tr><th>Bus No.</th><th>Route</th><th>Date</th><th>Operator</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let bus of allBuses">
+          <td>{{ bus.registrationNumber }}</td>
+          <td>{{ bus.route?.source }} → {{ bus.route?.destination }}</td>
+          <td>{{ bus.travelDate | date:'mediumDate' }}</td>
+          <td>{{ bus.operator?.name || '—' }}</td>
+          <td>
+            <span class="badge" [class.badge-success]="bus.isActive" [class.badge-danger]="!bus.isActive">
+              {{ bus.isActive ? 'Active' : 'Cancelled' }}
+            </span>
+          </td>
+          <td>
+            <ng-container *ngIf="bus.isActive">
+              <input [(ngModel)]="cancelReason[bus.id]" name="reason_{{bus.id}}" placeholder="Reason (optional)" style="width:160px; margin-right:6px" />
+              <button class="btn btn-sm btn-danger" (click)="cancelBus(bus)">Cancel Bus</button>
+            </ng-container>
+            <span *ngIf="!bus.isActive" style="color:#888">Cancelled</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ALL USERS -->
+  <div class="card">
+    <h3>All Users</h3>
+    <div *ngIf="users.length === 0" class="empty-state">No users yet.</div>
+    <table class="data-table" *ngIf="users.length > 0">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Roles</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.roles?.join(', ') || 'User' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

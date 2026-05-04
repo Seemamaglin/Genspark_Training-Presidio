@@ -1,6 +1,7 @@
 using BusBookingSystem.Data;
 using BusBookingSystem.Models;
 using BusBookingSystem.DTOs.Requests;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -116,6 +117,70 @@ public class BusOperatorsController : ControllerBase
             .Sum(b => b.Payment?.Amount ?? 0);
 
         return Ok(new { Revenue = revenue });
+    }
+
+    [HttpGet("stops")]
+    public async Task<IActionResult> GetMyStops()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var op = await _context.BusOperators.Include(o => o.Stops)
+            .FirstOrDefaultAsync(o => o.UserId == user.Id);
+        if (op == null) return NotFound("Operator profile not found.");
+
+        return Ok(new
+        {
+            Boarding = op.Stops.Where(s => s.Type == StopType.Boarding)
+                          .OrderBy(s => s.SortOrder).ThenBy(s => s.StopName)
+                          .Select(s => new { s.Id, s.StopName, s.SortOrder }),
+            Dropping = op.Stops.Where(s => s.Type == StopType.Dropping)
+                          .OrderBy(s => s.SortOrder).ThenBy(s => s.StopName)
+                          .Select(s => new { s.Id, s.StopName, s.SortOrder })
+        });
+    }
+
+    [HttpPost("stops")]
+    public async Task<IActionResult> AddStop([FromBody] AddStopRequest request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var op = await _context.BusOperators.FirstOrDefaultAsync(o => o.UserId == user.Id);
+        if (op == null) return NotFound("Operator profile not found.");
+
+        if (string.IsNullOrWhiteSpace(request.StopName))
+            return BadRequest("Stop name is required.");
+
+        var stop = new OperatorStop
+        {
+            BusOperatorId = op.Id,
+            StopName = request.StopName.Trim(),
+            Type = request.Type,
+            SortOrder = request.SortOrder
+        };
+        _context.OperatorStops.Add(stop);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { stop.Id, stop.StopName, stop.Type, stop.SortOrder });
+    }
+
+    [HttpDelete("stops/{stopId}")]
+    public async Task<IActionResult> DeleteStop(int stopId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var op = await _context.BusOperators.FirstOrDefaultAsync(o => o.UserId == user.Id);
+        if (op == null) return NotFound("Operator profile not found.");
+
+        var stop = await _context.OperatorStops
+            .FirstOrDefaultAsync(s => s.Id == stopId && s.BusOperatorId == op.Id);
+        if (stop == null) return NotFound("Stop not found.");
+
+        _context.OperatorStops.Remove(stop);
+        await _context.SaveChangesAsync();
+        return Ok("Stop deleted.");
     }
 
     [HttpPut("buses/{busId}/price")]

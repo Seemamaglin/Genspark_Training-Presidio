@@ -29,7 +29,7 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/Buses/search?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(date)}`);
   }
 
-  public getBus(id: number) {
+  public getBus(id: string) {
     return this.http.get(`${this.baseUrl}/Buses/${id}`);
   }
 
@@ -49,8 +49,8 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/Bookings/dashboard`, { headers: this.headers });
   }
 
-  public requestOperatorUpgrade() {
-    return this.http.post(`${this.baseUrl}/Account/request-operator-upgrade`, {}, { headers: this.headers });
+  public requestOperatorUpgrade(data: { source: string; destination: string }) {
+    return this.http.post(`${this.baseUrl}/Account/request-operator-upgrade`, data, { headers: this.headers });
   }
 
   public getOperatorProfile() {
@@ -69,16 +69,36 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/BusOperators/revenue`, { headers: this.headers });
   }
 
+  public getOperatorStops() {
+    return this.http.get(`${this.baseUrl}/BusOperators/stops`, { headers: this.headers });
+  }
+
+  public addOperatorStop(data: { stopName: string; type: number; sortOrder?: number }) {
+    return this.http.post(`${this.baseUrl}/BusOperators/stops`, data, { headers: this.headers });
+  }
+
+  public deleteOperatorStop(stopId: number) {
+    return this.http.delete(`${this.baseUrl}/BusOperators/stops/${stopId}`, { headers: this.headers });
+  }
+
+  public getBusStops(busId: string) {
+    return this.http.get(`${this.baseUrl}/Buses/${busId}/stops`);
+  }
+
   public createBus(data: any) {
     return this.http.post(`${this.baseUrl}/Buses`, data, { headers: this.headers });
   }
 
-  public disableBus(id: number) {
-    return this.http.put(`${this.baseUrl}/Buses/${id}/disable`, {}, { headers: this.headers });
+  public disableBus(id: any) {
+    return this.http.put(`${this.baseUrl}/BusOperators/buses/${id}/disable`, {}, { headers: this.headers });
   }
 
-  public enableBus(id: number) {
-    return this.http.put(`${this.baseUrl}/Buses/${id}/enable`, {}, { headers: this.headers });
+  public enableBus(id: any) {
+    return this.http.put(`${this.baseUrl}/BusOperators/buses/${id}/enable`, {}, { headers: this.headers });
+  }
+
+  public cancelBooking(bookingId: any) {
+    return this.http.post(`${this.baseUrl}/Bookings/cancel/${bookingId}`, {}, { headers: this.headers });
   }
 
   public getRoutes() {
@@ -93,11 +113,47 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/Admin/operator-requests`, { headers: this.headers });
   }
 
-  public approveOperator(userId: string, routeId: number) {
-    return this.http.post(`${this.baseUrl}/Admin/operators/${userId}/approve`, { routeId }, { headers: this.headers });
+  public approveOperator(userId: string) {
+    return this.http.post(`${this.baseUrl}/Admin/operators/${userId}/approve`, {}, { headers: this.headers });
   }
 
   public rejectOperator(userId: string, reason: string) {
-    return this.http.post(`${this.baseUrl}/Admin/operators/${userId}/reject`, reason, { headers: this.headers });
+    return this.http.post(`${this.baseUrl}/Admin/operators/${userId}/reject`, JSON.stringify(reason), { headers: this.headers });
+  }
+
+  public getAllUsers() {
+    return this.http.get(`${this.baseUrl}/Admin/users`, { headers: this.headers });
+  }
+
+  public getAdminRevenue() {
+    return this.http.get(`${this.baseUrl}/Admin/revenue`, { headers: this.headers });
+  }
+
+  public getAllBuses() {
+    return this.http.get(`${this.baseUrl}/Admin/buses`, { headers: this.headers });
+  }
+
+  public cancelBus(busId: any, reason: string) {
+    return this.http.post(`${this.baseUrl}/Admin/buses/${busId}/cancel`, { cancellationReason: reason }, { headers: this.headers });
+  }
+
+  public disableOperator(operatorId: any) {
+    return this.http.post(`${this.baseUrl}/Admin/operators/${operatorId}/disable`, {}, { headers: this.headers });
+  }
+
+  public enableOperator(operatorId: any) {
+    return this.http.post(`${this.baseUrl}/Admin/operators/${operatorId}/enable`, {}, { headers: this.headers });
+  }
+
+  public getOperatorsList() {
+    return this.http.get(`${this.baseUrl}/Admin/operators`, { headers: this.headers });
+  }
+
+  public adminCreateBus(data: any) {
+    return this.http.post(`${this.baseUrl}/Admin/buses`, data, { headers: this.headers });
+  }
+
+  public deleteRoute(routeId: any) {
+    return this.http.delete(`${this.baseUrl}/Admin/routes/${routeId}`, { headers: this.headers });
   }
 }

@@ -18,6 +18,7 @@ export class AuthComponent {
     proof: ''
   };
   public errorMessage = '';
+  public loading = false;
 
   constructor(private api: ApiService, private auth: AuthService, private router: Router) {}
 
@@ -26,15 +27,28 @@ export class AuthComponent {
     this.errorMessage = '';
   }
 
+  private extractError(err: any): string {
+    if (!err.error) return err.statusText || 'An error occurred';
+    if (typeof err.error === 'string') return err.error;
+    if (Array.isArray(err.error)) return err.error.join(' ');
+    if (err.error.message) return err.error.message;
+    if (err.error.errors) {
+      const msgs = Object.values(err.error.errors as Record<string, string[]>).flat();
+      return msgs.join(' ');
+    }
+    return err.statusText || 'An error occurred';
+  }
+
   public submit() {
     this.errorMessage = '';
+    this.loading = true;
     if (this.isRegister) {
       this.api.register(this.model).subscribe({
         next: (result: any) => {
           this.auth.setSession(result.token, { name: result.userName, roles: result.roles });
           this.router.navigate(['/dashboard']);
         },
-        error: err => this.errorMessage = err.error?.message || err.statusText
+        error: err => { this.loading = false; this.errorMessage = this.extractError(err); }
       });
     } else {
       this.api.login(this.model).subscribe({
@@ -42,7 +56,7 @@ export class AuthComponent {
           this.auth.setSession(result.token, { name: result.userName, roles: result.roles });
           this.router.navigate(['/dashboard']);
         },
-        error: err => this.errorMessage = err.error?.message || err.statusText
+        error: err => { this.loading = false; this.errorMessage = this.extractError(err); }
       });
     }
   }

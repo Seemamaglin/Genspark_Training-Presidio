@@ -114,6 +114,17 @@ public class BookingsController : ControllerBase
         var amount = bus.Price * request.PassengerDetails.Count;
         var bookingReference = $"BB-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString()[..6]}";
 
+        var passengerEntities = request.PassengerDetails.Select(p => new PassengerDetail
+        {
+            Name = p.Name,
+            PhoneNumber = p.PhoneNumber,
+            Email = p.Email,
+            Age = p.Age,
+            SeatNumber = p.SeatNumber,
+            Source = bus.Route?.Source ?? string.Empty,
+            Destination = bus.Route?.Destination ?? string.Empty
+        }).ToList();
+
         var booking = new Booking
         {
             UserId = user.Id,
@@ -122,7 +133,9 @@ public class BookingsController : ControllerBase
             Status = BookingStatus.Confirmed,
             TotalAmount = amount,
             BookingReference = bookingReference,
-            PassengerDetails = request.PassengerDetails
+            PassengerDetails = passengerEntities,
+            PickupStop = request.PickupStop,
+            DroppingStop = request.DroppingStop
         };
 
         _context.Bookings.Add(booking);
@@ -279,6 +292,8 @@ public class BookingsController : ControllerBase
             booking.Bus.TravelDate,
             booking.Bus.Timing,
             Route = new { booking.Bus.Route.Source, booking.Bus.Route.Destination },
+            booking.PickupStop,
+            booking.DroppingStop,
             Payment = booking.Payment == null ? null : new { booking.Payment.Status, booking.Payment.Amount },
         };
     }

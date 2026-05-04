@@ -11,6 +11,7 @@ export class DashboardComponent implements OnInit {
   public past: any[] = [];
   public cancelled: any[] = [];
   public message = '';
+  public upgradeRequest = { source: '', destination: '' };
 
   constructor(private api: ApiService, public auth: AuthService) {}
 
@@ -29,11 +30,30 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  public cancelBooking(booking: any): void {
+    if (!confirm(`Cancel booking ${booking.bookingReference}? This action cannot be undone.`)) return;
+    this.message = '';
+    this.api.cancelBooking(booking.id).subscribe({
+      next: () => {
+        this.message = 'Booking cancelled and refund processed.';
+        this.loadDashboard();
+      },
+      error: err => this.message = err.error?.message || err.error || err.statusText
+    });
+  }
+
   public requestOperatorUpgrade(): void {
     this.message = '';
-    this.api.requestOperatorUpgrade().subscribe({
-      next: () => this.message = 'Upgrade request submitted. Wait for admin approval.',
-      error: err => this.message = err.error || err.statusText
+    if (!this.upgradeRequest.source || !this.upgradeRequest.destination) {
+      this.message = 'Please enter both source and destination.';
+      return;
+    }
+    this.api.requestOperatorUpgrade(this.upgradeRequest).subscribe({
+      next: () => {
+        this.message = `Request submitted for ${this.upgradeRequest.source} → ${this.upgradeRequest.destination}. Await admin approval.`;
+        this.upgradeRequest = { source: '', destination: '' };
+      },
+      error: err => this.message = typeof err.error === 'string' ? err.error : err.error?.message || err.statusText
     });
   }
 }

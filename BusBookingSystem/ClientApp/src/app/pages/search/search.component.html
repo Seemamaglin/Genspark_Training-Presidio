@@ -1,24 +1,70 @@
-<div class="card">
-  <h2>Search buses</h2>
-  <form (ngSubmit)="search()">
-    <label>Source</label>
-    <input [(ngModel)]="source" name="source" required />
-    <label>Destination</label>
-    <input [(ngModel)]="destination" name="destination" required />
-    <label>Travel Date</label>
-    <input type="date" [(ngModel)]="date" name="date" required />
-    <button type="submit">Search</button>
-  </form>
-  <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
+<div class="search-hero">
+  <h1>Find Buses</h1>
+  <div class="search-form card">
+    <div class="search-fields">
+      <div class="form-group">
+        <label>From</label>
+        <input [(ngModel)]="source" name="source" placeholder="e.g. Chennai" required />
+      </div>
+      <div class="form-group">
+        <label>To</label>
+        <input [(ngModel)]="destination" name="destination" placeholder="e.g. Bangalore" required />
+      </div>
+      <div class="form-group">
+        <label>Travel Date</label>
+        <input type="date" [(ngModel)]="date" name="date" [min]="today" required />
+      </div>
+      <button class="btn btn-primary" (click)="search()">Search Buses</button>
+    </div>
+    <p *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</p>
+  </div>
 </div>
-<div *ngIf="buses.length > 0">
-  <div *ngFor="let bus of buses" class="card">
-    <h3>{{ bus.registrationNumber }}</h3>
-    <p><strong>Route:</strong> {{ bus.route.source }} → {{ bus.route.destination }}</p>
-    <p><strong>Date:</strong> {{ bus.travelDate | date }}</p>
-    <p><strong>Time:</strong> {{ bus.timing }}</p>
-    <p><strong>Price:</strong> {{ bus.price | currency }}</p>
-    <p><strong>Available seats:</strong> {{ bus.availableSeats }} / {{ bus.totalSeats }}</p>
-    <button (click)="book(bus.id)">Select seats</button>
+
+<div *ngIf="buses.length === 0 && searched" class="card" style="text-align:center;padding:40px">
+  <p style="font-size:18px;color:#666">No buses found for this route on the selected date.</p>
+  <p>Try a different date or route.</p>
+</div>
+
+<div *ngIf="buses.length > 0" class="search-results">
+  <h3 class="results-header">{{ buses.length }} Bus{{ buses.length > 1 ? 'es' : '' }} Found</h3>
+  <div *ngFor="let bus of buses" class="bus-card">
+    <div class="bus-card-main">
+      <div class="bus-info">
+        <div class="bus-name">{{ bus.busName || bus.registrationNumber }}</div>
+        <div *ngIf="bus.busType" class="bus-type">{{ bus.busType }}</div>
+        <div class="bus-reg">{{ bus.registrationNumber }}</div>
+        <div class="operator-name" *ngIf="bus.operatorName">Operated by: {{ bus.operatorName }}</div>
+      </div>
+
+      <div class="bus-timing">
+        <div class="time-block">
+          <span class="time">{{ bus.departureTime }}</span>
+          <span class="city">{{ bus.route.source }}</span>
+          <span class="stop-label">📍 {{ bus.boardingPoint || bus.route.source }}</span>
+        </div>
+        <div class="duration-arrow">
+          <div class="arrow-line"></div>
+          <span class="bus-icon">🚌</span>
+        </div>
+        <div class="time-block">
+          <span class="time">{{ bus.arrivalTime || '—' }}</span>
+          <span class="city">{{ bus.route.destination }}</span>
+          <span class="stop-label">📍 {{ bus.droppingPoint || bus.route.destination }}</span>
+        </div>
+      </div>
+
+      <div class="bus-price-section">
+        <div class="price">₹{{ bus.price }}</div>
+        <div class="seats-left" [class.low-seats]="bus.availableSeats <= 5">
+          {{ bus.availableSeats }} seat{{ bus.availableSeats !== 1 ? 's' : '' }} available
+        </div>
+        <button
+          class="btn btn-primary btn-book"
+          [disabled]="bus.availableSeats === 0"
+          (click)="book(bus.id)">
+          {{ bus.availableSeats > 0 ? 'Select Seats' : 'Sold Out' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

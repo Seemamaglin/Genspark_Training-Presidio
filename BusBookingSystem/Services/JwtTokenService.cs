@@ -16,9 +16,9 @@ public static class JwtTokenService
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Email ?? string.Empty),
+            new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("id", user.Id),
+            new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.UserName ?? user.Email ?? string.Empty),
             new(ClaimTypes.Email, user.Email ?? string.Empty)
         };

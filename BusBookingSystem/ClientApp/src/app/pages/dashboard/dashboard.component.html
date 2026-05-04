@@ -7,8 +7,10 @@
       <p><strong>Reference:</strong> {{ booking.bookingReference }}</p>
       <p><strong>Route:</strong> {{ booking.route?.source }} → {{ booking.route?.destination }}</p>
       <p><strong>Date:</strong> {{ booking.travelDate | date }}</p>
-      <p><strong>Amount:</strong> {{ booking.totalAmount | currency }}</p>
+      <p><strong>Time:</strong> {{ booking.timing }}</p>
+      <p><strong>Amount:</strong> {{ booking.totalAmount | currency:'INR':'symbol':'1.0-0' }}</p>
       <p><strong>Status:</strong> {{ booking.status }}</p>
+      <button class="btn btn-danger btn-sm" (click)="cancelBooking(booking)">Cancel Booking</button>
     </div>
   </div>
 
@@ -35,9 +37,22 @@
     </div>
   </div>
   <div class="card" *ngIf="!auth.hasRole('BusOperator') && !auth.hasRole('Admin')">
-    <h3>Operator upgrade</h3>
-    <p>Request bus operator access to manage buses and routes.</p>
-    <button (click)="requestOperatorUpgrade()">Request Bus Operator Upgrade</button>
+    <h3>Become a Bus Operator</h3>
+    <p>Enter your boarding point and destination to apply for operator access.</p>
+    <div class="form-grid" style="max-width:480px">
+      <div class="form-group">
+        <label>Boarding Point (Source) *</label>
+        <input [(ngModel)]="upgradeRequest.source" name="opSource" placeholder="e.g. Chennai" />
+      </div>
+      <div class="form-group">
+        <label>Destination *</label>
+        <input [(ngModel)]="upgradeRequest.destination" name="opDest" placeholder="e.g. Coimbatore" />
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px" (click)="requestOperatorUpgrade()"
+      [disabled]="!upgradeRequest.source || !upgradeRequest.destination">
+      Submit Upgrade Request
+    </button>
     <p *ngIf="message" style="margin-top:0.75rem; color: green">{{ message }}</p>
   </div>
 </div>

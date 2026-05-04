@@ -13,9 +13,8 @@ public class Seat
 {
     public Guid Id { get; set; }
 
-    [Required]
-    public Guid ScheduleId { get; set; }
-    public BusSchedule Schedule { get; set; } = null!;
+    public Guid? ScheduleId { get; set; }
+    public BusSchedule? Schedule { get; set; }
 
     [Required]
     public string SeatCode { get; set; } = null!;

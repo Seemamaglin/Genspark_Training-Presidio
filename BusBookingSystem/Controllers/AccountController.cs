@@ -110,8 +110,34 @@ public class AccountController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
+        if (string.IsNullOrWhiteSpace(model.Source) || string.IsNullOrWhiteSpace(model.Destination))
+            return BadRequest("Source and destination are required.");
+
+        if (model.Source.Trim().Equals(model.Destination.Trim(), StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Source and destination must be different.");
+
+        // Remove any previous pending request for this user
+        var existing = await _context.BusOperators
+            .FirstOrDefaultAsync(o => o.UserId == user.Id && !o.IsEnabled);
+        if (existing != null)
+        {
+            existing.Source = model.Source.Trim();
+            existing.Destination = model.Destination.Trim();
+        }
+        else
+        {
+            _context.BusOperators.Add(new BusOperator
+            {
+                UserId = user.Id,
+                Source = model.Source.Trim(),
+                Destination = model.Destination.Trim(),
+                IsEnabled = false
+            });
+        }
+
         user.IsBusOperatorRequest = true;
         await _userManager.UpdateAsync(user);
+        await _context.SaveChangesAsync();
 
         return Ok(new { Message = "Operator upgrade request submitted." });
     }

@@ -1,24 +1,31 @@
-<div class="card">
-  <h2>{{ isRegister ? 'Register' : 'Login' }}</h2>
-  <form (ngSubmit)="submit()">
+<div class="card" style="max-width:420px;margin:2rem auto">
+  <h2>{{ isRegister ? 'Create Account' : 'Login' }}</h2>
+  <form (ngSubmit)="submit()" #authForm="ngForm">
     <div *ngIf="isRegister">
-      <label>Name</label>
-      <input [(ngModel)]="model.name" name="name" required />
+      <label>Full Name</label>
+      <input [(ngModel)]="model.name" name="name" required placeholder="e.g. Rahul Kumar" />
       <label>Phone Number</label>
-      <input [(ngModel)]="model.phoneNumber" name="phoneNumber" required />
+      <input [(ngModel)]="model.phoneNumber" name="phoneNumber" required placeholder="10-digit mobile number" />
       <label>Age</label>
-      <input type="number" [(ngModel)]="model.age" name="age" required />
-      <label>Proof / ID Reference</label>
-      <input [(ngModel)]="model.proof" name="proof" />
+      <input type="number" [(ngModel)]="model.age" name="age" required min="1" max="120" />
+      <label>ID Proof (optional)</label>
+      <input [(ngModel)]="model.proof" name="proof" placeholder="Aadhaar / PAN / Passport" />
     </div>
     <label>Email</label>
-    <input type="email" [(ngModel)]="model.email" name="email" required />
+    <input type="email" [(ngModel)]="model.email" name="email" required placeholder="you@example.com" />
     <label>Password</label>
-    <input type="password" [(ngModel)]="model.password" name="password" required />
-    <button type="submit">{{ isRegister ? 'Sign Up' : 'Log In' }}</button>
+    <input type="password" [(ngModel)]="model.password" name="password" required placeholder="Min 6 chars, include A-Z, 0-9, symbol" />
+    <p *ngIf="isRegister" style="font-size:0.78rem;color:#64748b;margin:0 0 0.75rem">
+      Password must be at least 6 characters and contain uppercase, lowercase, digit and a special character (e.g. <strong>Test@1234</strong>).
+    </p>
+    <button type="submit" class="btn btn-primary btn-large" style="margin-top:8px" [disabled]="loading || authForm.invalid">
+      {{ loading ? 'Please wait…' : (isRegister ? 'Sign Up' : 'Log In') }}
+    </button>
   </form>
-  <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
-  <p>
-    <a (click)="toggleMode()" style="cursor: pointer; text-decoration: underline;">{{ isRegister ? 'Already have an account?' : 'Need an account?' }}</a>
+  <p *ngIf="errorMessage" style="color:#dc2626;margin-top:0.75rem">{{ errorMessage }}</p>
+  <p style="margin-top:1rem">
+    <a (click)="toggleMode()" style="cursor:pointer;text-decoration:underline;color:#d84e55">
+      {{ isRegister ? 'Already have an account? Log In' : 'New here? Create an account' }}
+    </a>
   </p>
 </div>

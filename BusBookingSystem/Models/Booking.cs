@@ -20,9 +20,8 @@ public class Booking
     public string UserId { get; set; } = null!;
     public ApplicationUser User { get; set; } = null!;
 
-    [Required]
-    public Guid ScheduleId { get; set; }
-    public BusSchedule Schedule { get; set; } = null!;
+    public Guid? ScheduleId { get; set; }
+    public BusSchedule? Schedule { get; set; }
 
     public decimal TotalAmount { get; set; }
     public BookingStatus Status { get; set; } = BookingStatus.PendingPayment;
@@ -35,6 +34,10 @@ public class Booking
 
     [Required]
     public DateTime BookingDate { get; set; }
+
+    public string? PickupStop { get; set; }
+    public string? DroppingStop { get; set; }
+
     public ICollection<PassengerDetail> PassengerDetails { get; set; } = new List<PassengerDetail>();
     public Payment? Payment { get; set; }
 }

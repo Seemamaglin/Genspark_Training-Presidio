@@ -1,53 +1,195 @@
-<div class="card">
-  <h2>Operator Panel</h2>
-  <div *ngIf="profile">
-    <p><strong>Name:</strong> {{ profile.name }}</p>
-    <p><strong>Route:</strong> {{ profile.assignedRoute?.source }} → {{ profile.assignedRoute?.destination }}</p>
+<div class="operator-panel">
+  <div class="panel-header card">
+    <h2>Operator Dashboard</h2>
+    <div *ngIf="profile" class="profile-info">
+      <span><strong>{{ profile.name }}</strong></span>
+      <span class="route-badge">{{ profile.assignedRoute?.source || profile.source }} → {{ profile.assignedRoute?.destination || profile.destination }}</span>
+    </div>
+    <div class="revenue-highlight">
+      <span class="revenue-label">Total Revenue</span>
+      <span class="revenue-amount">₹{{ revenue | number:'1.0-0' }}</span>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Add new bus</h3>
-    <label>Registration number</label>
-    <input [(ngModel)]="newBus.registrationNumber" name="registrationNumber" />
-    <label>Timing</label>
-    <input type="time" [(ngModel)]="newBus.timing" name="timing" />
-    <label>Travel date</label>
-    <input type="date" [(ngModel)]="newBus.travelDate" name="travelDate" />
-    <label>Seat layout (comma separated)</label>
-    <textarea [(ngModel)]="newBus.seatLayout" name="seatLayout"></textarea>
-    <label>Price</label>
-    <input type="number" [(ngModel)]="newBus.price" name="price" />
-    <button (click)="createBus()">Create Bus</button>
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'buses'" (click)="activeTab = 'buses'">My Buses</button>
+    <button class="tab-btn" [class.active]="activeTab === 'add'" (click)="activeTab = 'add'">+ Add Bus</button>
+    <button class="tab-btn" [class.active]="activeTab === 'stops'" (click)="activeTab = 'stops'">Stops ({{ stops.boarding.length + stops.dropping.length }})</button>
+    <button class="tab-btn" [class.active]="activeTab === 'bookings'" (click)="activeTab = 'bookings'">Bookings ({{ bookings.length }})</button>
   </div>
 
-  <div class="card">
+  <div *ngIf="error" class="alert alert-error">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+  <!-- Add Bus Tab -->
+  <div *ngIf="activeTab === 'add'" class="card">
+    <h3>Add New Bus to Your Route</h3>
+    <p class="route-note" *ngIf="profile">Route: <strong>{{ profile.assignedRoute?.source || profile.source }} → {{ profile.assignedRoute?.destination || profile.destination }}</strong></p>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Registration Number *</label>
+        <input [(ngModel)]="newBus.registrationNumber" name="regNum" placeholder="e.g. TN01AB1234" required />
+      </div>
+      <div class="form-group">
+        <label>Bus Name</label>
+        <input [(ngModel)]="newBus.busName" name="busName" placeholder="e.g. Express Travels" />
+      </div>
+      <div class="form-group">
+        <label>Bus Type</label>
+        <select [(ngModel)]="newBus.busType" name="busType">
+          <option value="AC Seater">AC Seater</option>
+          <option value="Non-AC Seater">Non-AC Seater</option>
+          <option value="AC Sleeper">AC Sleeper</option>
+          <option value="Semi-Sleeper">Semi-Sleeper</option>
+          <option value="Volvo AC">Volvo AC</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Travel Date *</label>
+        <input type="date" [(ngModel)]="newBus.travelDate" name="travelDate" [min]="today" required />
+      </div>
+      <div class="form-group">
+        <label>Departure Time *</label>
+        <input type="time" [(ngModel)]="newBus.departureTime" name="depTime" required />
+      </div>
+      <div class="form-group">
+        <label>Arrival Time</label>
+        <input type="time" [(ngModel)]="newBus.arrivalTime" name="arrTime" />
+      </div>
+      <div class="form-group">
+        <label>Total Seats *</label>
+        <select [(ngModel)]="newBus.totalSeats" name="totalSeats">
+          <option [value]="20">20 (Mini bus)</option>
+          <option [value]="32">32 seats</option>
+          <option [value]="40">40 seats (Standard)</option>
+          <option [value]="45">45 seats</option>
+          <option [value]="50">50 seats</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Price per Seat (₹) *</label>
+        <input type="number" [(ngModel)]="newBus.price" name="price" min="1" required />
+      </div>
+      <div class="form-group">
+        <label>Boarding Stop *
+          <small *ngIf="profile">(within {{ profile.assignedRoute?.source || profile.source }})</small>
+        </label>
+        <input [(ngModel)]="newBus.boardingPoint" name="boardingPoint"
+          [placeholder]="'e.g. ' + (profile?.assignedRoute?.source || profile?.source || 'City') + ' Bus Stand'" required />
+      </div>
+      <div class="form-group">
+        <label>Dropping Stop *
+          <small *ngIf="profile">(within {{ profile.assignedRoute?.destination || profile.destination }})</small>
+        </label>
+        <input [(ngModel)]="newBus.droppingPoint" name="droppingPoint"
+          [placeholder]="'e.g. ' + (profile?.assignedRoute?.destination || profile?.destination || 'City') + ' CMBT'" required />
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:12px">
+      <label>Custom Seat Layout <small>(optional, comma-separated e.g. 1A,1B,1C,1D — leave blank for auto 2+2 layout)</small></label>
+      <textarea [(ngModel)]="newBus.seatLayout" name="seatLayout" rows="2" placeholder="Leave blank for standard layout"></textarea>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:16px" (click)="createBus()">Add Bus</button>
+  </div>
+
+  <!-- My Buses Tab -->
+  <div *ngIf="activeTab === 'buses'" class="card">
     <h3>My Buses</h3>
-    <div *ngIf="buses.length === 0">No buses yet.</div>
-    <div *ngFor="let bus of buses" class="card">
-      <p><strong>{{ bus.registrationNumber }}</strong></p>
-      <p>{{ bus.route.source }} → {{ bus.route.destination }}</p>
-      <p>{{ bus.travelDate | date }} {{ bus.timing }}</p>
-      <p><strong>Price:</strong> {{ bus.price | currency }}</p>
-      <p><strong>Status:</strong> {{ bus.isActive ? 'Active' : 'Disabled' }}</p>
-      <button *ngIf="bus.isActive" (click)="disableBus(bus)">Disable</button>
-      <button *ngIf="!bus.isActive" (click)="enableBus(bus)">Enable</button>
+    <div *ngIf="buses.length === 0" class="empty-state">No buses yet. Click "Add Bus" to get started.</div>
+    <div *ngFor="let bus of buses" class="bus-row">
+      <div class="bus-row-info">
+        <div class="bus-row-name">{{ bus.busName || bus.registrationNumber }}</div>
+        <div class="bus-row-detail">{{ bus.registrationNumber }} &bull; {{ bus.travelDate | date:'mediumDate' }}</div>
+        <div class="bus-row-detail">{{ bus.route?.source }} → {{ bus.route?.destination }} &bull; ₹{{ bus.price }}</div>
+      </div>
+      <div class="bus-row-actions">
+        <span class="badge" [class.badge-active]="bus.isActive" [class.badge-inactive]="!bus.isActive">
+          {{ bus.isActive ? 'Active' : 'Disabled' }}
+        </span>
+        <button *ngIf="bus.isActive" class="btn btn-sm btn-danger" (click)="disableBus(bus)">Disable</button>
+        <button *ngIf="!bus.isActive" class="btn btn-sm btn-success" (click)="enableBus(bus)">Enable</button>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Bookings</h3>
-    <div *ngIf="bookings.length === 0">No bookings yet.</div>
-    <div *ngFor="let booking of bookings" class="card">
-      <p><strong>Booking:</strong> {{ booking.id }}</p>
-      <p><strong>Status:</strong> {{ booking.status }}</p>
-      <p><strong>Amount:</strong> {{ booking.payment?.amount | currency }}</p>
+  <!-- Stops Tab -->
+  <div *ngIf="activeTab === 'stops'" class="card">
+    <h3>Manage Pickup &amp; Dropping Points</h3>
+    <p style="color:#64748b;font-size:0.9rem" *ngIf="profile">
+      Route: <strong>{{ profile.assignedRoute?.source || profile.source }} → {{ profile.assignedRoute?.destination || profile.destination }}</strong>
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px">
+
+      <!-- Boarding Stops -->
+      <div>
+        <h4 style="margin:0 0 10px;color:#16a34a">Boarding Stops
+          <small style="font-weight:400;color:#64748b">(in {{ profile?.assignedRoute?.source || profile?.source }})</small>
+        </h4>
+        <div class="stop-list">
+          <div *ngFor="let s of stops.boarding" class="stop-item">
+            <span>{{ s.stopName }}</span>
+            <button class="btn btn-sm btn-danger" (click)="deleteStop(s.id)">✕</button>
+          </div>
+          <div *ngIf="stops.boarding.length === 0" class="empty-state" style="padding:8px">No boarding stops yet.</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input [(ngModel)]="newBoardingStop" name="newBoarding"
+            placeholder="e.g. Gandhipuram Bus Stand" style="flex:1" />
+          <button class="btn btn-success btn-sm" (click)="addStop('boarding')" [disabled]="!newBoardingStop">Add</button>
+        </div>
+      </div>
+
+      <!-- Dropping Stops -->
+      <div>
+        <h4 style="margin:0 0 10px;color:#dc2626">Dropping Stops
+          <small style="font-weight:400;color:#64748b">(in {{ profile?.assignedRoute?.destination || profile?.destination }})</small>
+        </h4>
+        <div class="stop-list">
+          <div *ngFor="let s of stops.dropping" class="stop-item">
+            <span>{{ s.stopName }}</span>
+            <button class="btn btn-sm btn-danger" (click)="deleteStop(s.id)">✕</button>
+          </div>
+          <div *ngIf="stops.dropping.length === 0" class="empty-state" style="padding:8px">No dropping stops yet.</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input [(ngModel)]="newDroppingStop" name="newDropping"
+            placeholder="e.g. CMBT Chennai" style="flex:1" />
+          <button class="btn btn-success btn-sm" (click)="addStop('dropping')" [disabled]="!newDroppingStop">Add</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="card">
-    <h3>Revenue</h3>
-    <p><strong>Total:</strong> {{ revenue | currency }}</p>
+  <!-- Bookings Tab -->
+  <div *ngIf="activeTab === 'bookings'" class="card">
+    <h3>Passenger Bookings</h3>
+    <div *ngIf="bookings.length === 0" class="empty-state">No bookings yet.</div>
+    <table *ngIf="bookings.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Passenger</th>
+          <th>Bus</th>
+          <th>Seats</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of bookings">
+          <td>{{ b.bookingReference }}</td>
+          <td>{{ b.userName || b.userId }}</td>
+          <td>{{ b.busRegistration || b.busId }}</td>
+          <td>{{ b.seatNumbers || '—' }}</td>
+          <td>₹{{ b.totalAmount }}</td>
+          <td><span class="status-badge" [class]="'status-' + (b.status | lowercase)">{{ b.status }}</span></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-  <p *ngIf="error" style="color:red">{{ error }}</p>
 </div>
