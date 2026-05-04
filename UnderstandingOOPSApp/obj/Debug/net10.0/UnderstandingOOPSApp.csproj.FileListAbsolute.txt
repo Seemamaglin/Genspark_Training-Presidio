@@ -1,0 +1,14 @@
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/bin/Debug/net10.0/UnderstandingOOPSApp
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/bin/Debug/net10.0/UnderstandingOOPSApp.deps.json
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/bin/Debug/net10.0/UnderstandingOOPSApp.runtimeconfig.json
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/bin/Debug/net10.0/UnderstandingOOPSApp.dll
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/bin/Debug/net10.0/UnderstandingOOPSApp.pdb
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.AssemblyInfoInputs.cache
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.AssemblyInfo.cs
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.csproj.CoreCompileInputs.cache
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.dll
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/refint/UnderstandingOOPSApp.dll
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.pdb
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/UnderstandingOOPSApp.genruntimeconfig.cache
+/Users/seemamaglin/Documents/Genspark-assignments/C#/OOPs/UnderstandingOOPSApp/obj/Debug/net10.0/ref/UnderstandingOOPSApp.dll
