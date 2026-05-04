@@ -1,0 +1,15 @@
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.GeneratedMSBuildEditorConfig.editorconfig
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.AssemblyInfoInputs.cache
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.AssemblyInfo.cs
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.csproj.CoreCompileInputs.cache
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.sourcelink.json
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/bin/Debug/net10.0/NotificationSystem
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/bin/Debug/net10.0/NotificationSystem.deps.json
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/bin/Debug/net10.0/NotificationSystem.runtimeconfig.json
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/bin/Debug/net10.0/NotificationSystem.dll
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/bin/Debug/net10.0/NotificationSystem.pdb
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.dll
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/refint/NotificationSystem.dll
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.pdb
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/NotificationSystem.genruntimeconfig.cache
+/Users/seemamaglin/Documents/Genspark_Training-Presidio/NotificationSystem/obj/Debug/net10.0/ref/NotificationSystem.dll
