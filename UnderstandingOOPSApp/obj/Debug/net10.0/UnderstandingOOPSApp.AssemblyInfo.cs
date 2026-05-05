@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UnderstandingOOPSApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2da126f42ab8500306c4a804d8c07c7aea30f40")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b598deec839e47c54882afc877fbffc413414ef")]
 [assembly: System.Reflection.AssemblyProductAttribute("UnderstandingOOPSApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UnderstandingOOPSApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

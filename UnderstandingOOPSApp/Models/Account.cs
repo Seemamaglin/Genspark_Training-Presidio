@@ -2,7 +2,8 @@ using System;
 
 namespace UnderstandingOOPSApp.Models
 {
-    internal class Account
+
+    internal class Account : IComparable<Account>
     {
         public string AccountNumber { get; set; } = string.Empty;
         public string NameOnAccount { get; set; } = string.Empty;
@@ -14,9 +15,8 @@ namespace UnderstandingOOPSApp.Models
 
         public Account() { }
 
-        public Account(string accountNumber, string nameOnAccount,
-                       DateTime dateOfBirth, string email,
-                       string phone, float balance)
+        public Account(string accountNumber, string nameOnAccount, DateTime dateOfBirth,
+                       string email, string phone, float balance)
         {
             AccountNumber = accountNumber;
             NameOnAccount = nameOnAccount;
@@ -29,11 +29,16 @@ namespace UnderstandingOOPSApp.Models
         public override string ToString()
         {
             return $"Account Number : {AccountNumber}\n" +
-                   $"Account Type : {AccountType}\n" +
+                   $"AccountType : {AccountType}\n" +
                    $"Account Holder Name : {NameOnAccount}\n" +
                    $"Phone Number : {Phone}\n" +
                    $"Email : {Email}\n" +
-                   $"Balance : {Balance}";
+                   $"Balance : ${Balance}";
+        }
+
+        public int CompareTo(Account? other)
+        {
+            return AccountNumber.CompareTo(other?.AccountNumber);
         }
     }
 }
